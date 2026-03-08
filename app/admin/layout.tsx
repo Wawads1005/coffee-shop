@@ -1,0 +1,89 @@
+import * as React from "react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { HomeIcon, PackageIcon, TagsIcon } from "lucide-react";
+import Link from "next/link";
+import { Separator } from "@/components/ui/separator";
+
+interface AdminLayoutProps {
+  children?: React.ReactNode;
+}
+
+function AdminLayout({ children }: AdminLayoutProps) {
+  return (
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    tooltip="Home"
+                    render={
+                      <Link href="/admin">
+                        <HomeIcon />
+                        <span>Home</span>
+                      </Link>
+                    }
+                  />
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>Content Management</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    tooltip="Categories"
+                    render={
+                      <Link href="/admin/categories">
+                        <TagsIcon />
+                        <span>Categories</span>
+                      </Link>
+                    }
+                  ></SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    tooltip="Products"
+                    render={
+                      <Link href="/admin/products">
+                        <PackageIcon />
+                        <span>Products</span>
+                      </Link>
+                    }
+                  />
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarRail />
+      </Sidebar>
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 md:px-8">
+          <SidebarTrigger className="-ml-2 md:-ml-5" />
+          <Separator orientation="vertical" className="mr-4" />
+        </header>
+        {children}
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+
+export default AdminLayout;

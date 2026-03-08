@@ -3,6 +3,7 @@ import * as React from "react";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -20,7 +21,8 @@ function RootLayout({ children }: RootLayoutProps) {
       <head />
       <body className="min-h-screen antialiased">
         <TooltipProvider>
-          <main>{children}</main>
+          {children}
+          <Toaster />
         </TooltipProvider>
       </body>
     </html>
