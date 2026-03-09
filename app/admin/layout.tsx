@@ -76,7 +76,7 @@ function AdminLayout({ children }: AdminLayoutProps) {
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 md:px-8">
+        <header className="bg-background text-foreground sticky top-0 right-0 left-0 z-50 flex h-16 shrink-0 items-center gap-2 border-b px-4 md:px-8">
           <SidebarTrigger className="-ml-2 md:-ml-5" />
           <Separator orientation="vertical" className="mr-4" />
         </header>

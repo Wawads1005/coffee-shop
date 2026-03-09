@@ -50,7 +50,7 @@ function CategoriesPage() {
   }, [selectedCategoryId]);
 
   return (
-    <div className="container mx-auto min-h-screen w-full max-w-360 space-y-4 px-4 py-4 sm:px-8 md:space-y-8 md:px-16 md:py-8">
+    <div className="container mx-auto w-full max-w-360 space-y-4 px-4 py-4 sm:px-8 md:space-y-8 md:px-16 md:py-8">
       <div className="space-y-4">
         <div className="space-y-2">
           <h1 className="text-xl font-semibold sm:text-2xl md:text-3xl">
