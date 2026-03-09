@@ -14,7 +14,6 @@ function useProductForm({ defaultValues }: UseProductFormProps) {
   const productForm = useForm({
     validators: {
       onChange: productFormSchema,
-      onBlur: productFormSchema,
       onSubmit: productFormSchema,
     },
     defaultValues: {
