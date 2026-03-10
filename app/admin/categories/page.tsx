@@ -1,6 +1,6 @@
 "use client";
 
-import { CategoryBranch } from "@/components/categories/category-branch";
+import { CategoryCollapsibleBranch } from "@/components/categories/category-collapsible-branch";
 import { CategoryCard } from "@/components/categories/category-card";
 import { CategoryForm } from "@/components/categories/category-form";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { categories } from "@/data/categories";
-import { PackageOpenIcon, PlusCircleIcon } from "lucide-react";
+import { PackageOpenIcon, PlusCircleIcon, TagIcon } from "lucide-react";
 import * as React from "react";
 
 function CategoriesPage() {
@@ -105,7 +105,7 @@ function CategoriesPage() {
             .filter((category) => category.parentId === null)
             .map((category) => {
               return (
-                <CategoryBranch
+                <CategoryCollapsibleBranch
                   onSelectCategory={(categoryId) =>
                     setSelectedCategoryId((selectedCategoryId) =>
                       selectedCategoryId === categoryId ? null : categoryId,
@@ -113,7 +113,9 @@ function CategoriesPage() {
                   }
                   key={category.id}
                   category={category}
-                />
+                >
+                  <TagIcon />
+                </CategoryCollapsibleBranch>
               );
             })}
         </div>

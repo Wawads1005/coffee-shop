@@ -1,7 +1,8 @@
 "use client";
 
+import * as React from "react";
 import { categories, Category } from "@/data/categories";
-import { ChevronRightIcon, TagIcon, TagsIcon } from "lucide-react";
+import { ChevronRightIcon } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -9,13 +10,22 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
+import { cn } from "@/lib/utils";
 
-interface CategoryBranchProps {
+interface CategoryCollapsibleBranchProps extends React.ComponentProps<
+  typeof Button
+> {
   category: Category;
   onSelectCategory?: (categoryId: number) => void;
 }
 
-function CategoryBranch({ category, onSelectCategory }: CategoryBranchProps) {
+function CategoryCollapsibleBranch({
+  category,
+  onSelectCategory,
+  children,
+  className,
+  ...props
+}: CategoryCollapsibleBranchProps) {
   const subcategories = categories.filter(
     (subcategory) => subcategory.parentId === category.id,
   );
@@ -27,15 +37,16 @@ function CategoryBranch({ category, onSelectCategory }: CategoryBranchProps) {
           <Button
             onClick={() => onSelectCategory?.(category.id)}
             variant="ghost"
-            className="flex-1 justify-start"
+            className={cn("flex-1 justify-start", className)}
+            {...props}
           >
-            <TagsIcon />
+            {children}
             <span>{category.name}</span>
           </Button>
 
           <CollapsibleTrigger
             render={
-              <Button variant="ghost">
+              <Button variant="ghost" size="icon">
                 <ChevronRightIcon className="transition-transform group-data-panel-open/button:rotate-90" />
               </Button>
             }
@@ -43,14 +54,18 @@ function CategoryBranch({ category, onSelectCategory }: CategoryBranchProps) {
         </ButtonGroup>
         <CollapsibleContent className="ml-6">
           <Collapsible>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col">
               {subcategories.map((subcategory) => {
                 return (
-                  <CategoryBranch
+                  <CategoryCollapsibleBranch
                     key={subcategory.id}
                     category={subcategory}
                     onSelectCategory={onSelectCategory}
-                  />
+                    className={cn("", className)}
+                    {...props}
+                  >
+                    {children}
+                  </CategoryCollapsibleBranch>
                 );
               })}
             </div>
@@ -63,13 +78,14 @@ function CategoryBranch({ category, onSelectCategory }: CategoryBranchProps) {
   return (
     <Button
       variant="ghost"
-      className="justify-start"
+      className={cn("justify-start")}
       onClick={() => onSelectCategory?.(category.id)}
+      {...props}
     >
-      <TagIcon />
+      {children}
       <span>{category.name}</span>
     </Button>
   );
 }
 
-export { CategoryBranch };
+export { CategoryCollapsibleBranch };
