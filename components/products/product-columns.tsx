@@ -170,74 +170,85 @@ const productColumns: ColumnDef<Product>[] = [
       const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
       return (
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-            <DropdownMenu
-              open={isDropdownOpen}
-              onOpenChange={setIsDropdownOpen}
-            >
-              <DropdownMenuTrigger
-                render={
-                  <Button variant="ghost">
-                    <EllipsisIcon />
-                  </Button>
+        <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="ghost">
+                <EllipsisIcon />
+              </Button>
+            }
+          />
+          <DropdownMenuContent>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <Sheet
+                open={isSheetOpen}
+                onOpenChange={setIsSheetOpen}
+                onOpenChangeComplete={(open) =>
+                  !open && setIsDropdownOpen(false)
                 }
-              />
-              <DropdownMenuContent>
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setIsDropdownOpen(false);
-                      setIsSheetOpen(true);
-                    }}
-                  >
-                    <EditIcon />
-                    <span>Edit</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => {
-                      setIsDropdownOpen(false);
-                      setIsAlertOpen(true);
-                    }}
-                  >
-                    <TrashIcon />
-                    <span>Delete</span>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. Clicking continue will delete
-                  selected product.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction variant="destructive">
-                  Continue
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>Create a new product</SheetTitle>
-              <SheetDescription>
-                Fill up the form below, and click continue to create a new
-                product.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="px-4">
-              <ProductForm defaultValues={info.row.original} />
-            </div>
-          </SheetContent>
-        </Sheet>
+              >
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.preventBaseUIHandler();
+                    setIsSheetOpen(true);
+                  }}
+                >
+                  <EditIcon />
+                  <span>Edit</span>
+                </DropdownMenuItem>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>Create a new product</SheetTitle>
+                    <SheetDescription>
+                      Fill up the form below, and click continue to create a new
+                      product.
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div className="px-4">
+                    <ProductForm defaultValues={info.row.original} />
+                  </div>
+                </SheetContent>
+              </Sheet>
+              <AlertDialog
+                open={isAlertOpen}
+                onOpenChange={setIsAlertOpen}
+                onOpenChangeComplete={(open) =>
+                  !open && setIsDropdownOpen(false)
+                }
+              >
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={(e) => {
+                    e.preventBaseUIHandler();
+                    setIsAlertOpen(true);
+                  }}
+                >
+                  <TrashIcon />
+                  <span>Delete</span>
+                </DropdownMenuItem>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. Clicking continue will
+                      delete selected product.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction variant="destructive">
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     },
     enableHiding: false,
