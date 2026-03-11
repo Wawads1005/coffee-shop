@@ -134,7 +134,9 @@ function ProductForm({
                       min={0}
                       value={field.state.value / 100}
                       onChange={(e) => {
-                        const price = parseFloat(e.currentTarget.value) * 100;
+                        const priceCents = parseFloat(e.currentTarget.value);
+                        const price =
+                          (isNaN(priceCents) ? 0 : priceCents) * 100;
 
                         field.handleChange(price);
                       }}
