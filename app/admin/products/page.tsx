@@ -69,10 +69,13 @@ function ProductsPage({ ...props }: ProductsPageProps) {
           className="flex-1"
           defaultValues={{ search: searchParams.search ?? "" }}
           onSubmit={(values) => {
-            const urlSearchParams = new URLSearchParams({
-              ...searchParams,
-              search: values.search,
-            });
+            const urlSearchParams = new URLSearchParams({ ...searchParams });
+
+            if (values.search.length <= 0) {
+              urlSearchParams.delete("search");
+            } else {
+              urlSearchParams.set("search", values.search);
+            }
 
             router.push(`${pathname}?${urlSearchParams.toString()}`);
           }}
