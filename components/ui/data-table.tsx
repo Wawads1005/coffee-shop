@@ -228,6 +228,7 @@ function DataTablePagination<TData>({
               aria-disabled={pagination.pageIndex <= 0}
               className="aria-disabled:bg-muted aria-disabled:text-muted-foreground cursor-pointer aria-disabled:cursor-not-allowed"
               onClick={() =>
+                pagination.pageIndex > 0 &&
                 onPaginationChange?.({
                   ...pagination,
                   pageIndex: Math.max(0, pagination.pageIndex - 1),
