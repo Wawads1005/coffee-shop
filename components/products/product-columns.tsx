@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/sheet";
 import { ProductForm } from "@/components/products/product-form";
 import { Product } from "@/drizzle/schemas";
+import { useCategoryQuery } from "@/hooks/categories/use-category-query";
 
 const productColumns: ColumnDef<Product>[] = [
   {
@@ -54,15 +55,22 @@ const productColumns: ColumnDef<Product>[] = [
     enableHiding: false,
   },
   { accessorKey: "description", header: "Description" },
-  // {
-  //   accessorKey: "categoryId",
-  //   header: "Category",
-  //   cell: (info) => {
-  //     const category = info.getValue<string>();
+  {
+    id: "Category",
+    header: "Category",
+    accessorKey: "categoryId",
+    cell: (info) => {
+      const categoryId = info.getValue<string>();
+      const categoryQuery = useCategoryQuery({ id: categoryId });
+      const category = categoryQuery.data ? categoryQuery.data.category : null;
 
-  //     return <span>{category}</span>;
-  //   },
-  // },
+      if (!category) {
+        return null;
+      }
+
+      return <span>{category.name}</span>;
+    },
+  },
   {
     id: "price",
     accessorKey: "priceCents",
