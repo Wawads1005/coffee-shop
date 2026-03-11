@@ -22,11 +22,16 @@ import {
 import { ProductForm } from "@/components/products/product-form";
 import { useProductsQuery } from "@/hooks/products/use-products-query";
 import { usePathname, useRouter } from "next/navigation";
+import { GetProductsOrderBySchema } from "@/validators/products/get-products";
 
 interface ProductsPageSearchParams {
   search?: string;
   pageIndex?: string;
   pageSize?: string;
+  "orderBy[name]"?: string;
+  "orderBy[price]"?: string;
+  "orderBy[createdAt]"?: string;
+  "orderBy[updatedAt]"?: string;
 }
 
 interface ProductsPageProps {
@@ -47,6 +52,33 @@ function ProductsPage({ ...props }: ProductsPageProps) {
       : 10,
   };
 
+  const productsOrderBy: GetProductsOrderBySchema = {
+    name:
+      searchParams["orderBy[name]"] === "asc"
+        ? "asc"
+        : searchParams["orderBy[name]"] === "desc"
+          ? "desc"
+          : undefined,
+    priceCents:
+      searchParams["orderBy[price]"] === "asc"
+        ? "asc"
+        : searchParams["orderBy[price]"] === "desc"
+          ? "desc"
+          : undefined,
+    createdAt:
+      searchParams["orderBy[createdAt]"] === "asc"
+        ? "asc"
+        : searchParams["orderBy[createdAt]"] === "desc"
+          ? "desc"
+          : undefined,
+    updatedAt:
+      searchParams["orderBy[updatedAt]"] === "asc"
+        ? "asc"
+        : searchParams["orderBy[updatedAt]"] === "desc"
+          ? "desc"
+          : undefined,
+  };
+
   const productsQuery = useProductsQuery({
     filter: {
       search: searchParams.search,
@@ -55,6 +87,7 @@ function ProductsPage({ ...props }: ProductsPageProps) {
       limit: tablePagination.pageSize,
       offset: tablePagination.pageIndex * tablePagination.pageSize,
     },
+    orderBy: productsOrderBy,
   });
 
   const products = React.useMemo(

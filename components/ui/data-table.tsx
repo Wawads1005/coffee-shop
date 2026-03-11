@@ -45,6 +45,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const DATA_TABLE_MAXIMUM_PAGE = 5;
 
@@ -127,17 +128,42 @@ interface DataTableColumnSorterProps<TData> extends HeaderContext<
 function DataTableColumnSorter<TData>({
   column,
 }: DataTableColumnSorterProps<TData>) {
+  const [isToggled, setIsToggled] = React.useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const orderBy = encodeURI(`orderBy[${column.id}]`);
+  const urlSearchParams = new URLSearchParams(useSearchParams());
+  const orderDirection = urlSearchParams.get(decodeURI(orderBy));
+
+  const handleToggle = React.useCallback(() => {
+    if (isToggled) {
+      setIsToggled(false);
+      urlSearchParams.delete(decodeURI(orderBy));
+    } else {
+      if (orderDirection === "desc") {
+        setIsToggled(true);
+      }
+
+      urlSearchParams.set(
+        decodeURI(orderBy),
+        orderDirection === "desc" ? "asc" : "desc",
+      );
+    }
+
+    router.push(`${pathname}?${urlSearchParams.toString()}`);
+  }, [urlSearchParams]);
+
   return (
     <Button
       variant="ghost"
       role="button"
-      onClick={column.getToggleSortingHandler()}
+      onClick={handleToggle}
       className="w-full justify-between"
     >
       <span className="capitalize">{column.id}</span>
-      {column.getIsSorted() === "asc" ? (
+      {orderDirection === "asc" ? (
         <ChevronUpIcon />
-      ) : column.getIsSorted() === "desc" ? (
+      ) : orderDirection === "desc" ? (
         <ChevronDownIcon />
       ) : null}
     </Button>

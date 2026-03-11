@@ -27,7 +27,6 @@ function useDataTable<TData extends Data>({
   columns,
 }: UseDataTableProps<TData>) {
   "use memo";
-  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -41,22 +40,20 @@ function useDataTable<TData extends Data>({
   const productsTable = useReactTable({
     data,
     columns,
-    getSortedRowModel: getSortedRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getRowId: (row) => row.id,
     state: {
-      sorting,
       rowSelection,
       columnFilters,
       columnVisibility,
     },
-    onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     manualFiltering: true,
     manualPagination: true,
+    manualSorting: true,
   });
 
   return productsTable;
