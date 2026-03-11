@@ -21,10 +21,9 @@ import {
 } from "@/components/ui/sheet";
 import { ProductForm } from "@/components/products/product-form";
 import { useProductsQuery } from "@/hooks/products/use-products-query";
+import { useRouter } from "next/navigation";
 
 interface ProductsPageSearchParams {
-  pageIndex?: string;
-  pageSize?: string;
   search?: string;
 }
 
@@ -32,8 +31,16 @@ interface ProductsPageProps {
   searchParams: Promise<ProductsPageSearchParams>;
 }
 
-function ProductsPage({}: ProductsPageProps) {
-  const productsQuery = useProductsQuery();
+function ProductsPage({ ...props }: ProductsPageProps) {
+  const searchParams = React.use(props.searchParams);
+  const router = useRouter();
+
+  const productsQuery = useProductsQuery({
+    filter: {
+      search: searchParams.search,
+    },
+  });
+
   const products = React.useMemo(
     () =>
       productsQuery.data
@@ -62,7 +69,15 @@ function ProductsPage({}: ProductsPageProps) {
       <div className="flex items-center justify-between gap-4">
         <ProductSearchForm
           className="flex-1"
-          onSubmit={(values) => productsTable.setGlobalFilter(values.search)}
+          defaultValues={{ search: searchParams.search ?? "" }}
+          onSubmit={(values) => {
+            const urlSearchParams = new URLSearchParams({
+              ...searchParams,
+              search: values.search,
+            }).toString();
+
+            router.push(`/admin/products?${urlSearchParams.toString()}`);
+          }}
         />
         <div className="flex items-center justify-center gap-2">
           <Sheet>

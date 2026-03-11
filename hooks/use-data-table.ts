@@ -58,6 +58,7 @@ function useDataTable<TData>({ data, columns }: UseDataTableProps<TData>) {
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColumnVisibility,
+    manualFiltering: true,
   });
 
   return productsTable;
