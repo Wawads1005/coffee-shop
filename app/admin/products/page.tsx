@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sheet";
 import { ProductForm } from "@/components/products/product-form";
 import { useProductsQuery } from "@/hooks/products/use-products-query";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface ProductsPageSearchParams {
   search?: string;
@@ -32,6 +32,7 @@ interface ProductsPageProps {
 }
 
 function ProductsPage({ ...props }: ProductsPageProps) {
+  const pathname = usePathname();
   const searchParams = React.use(props.searchParams);
   const router = useRouter();
 
@@ -74,9 +75,9 @@ function ProductsPage({ ...props }: ProductsPageProps) {
             const urlSearchParams = new URLSearchParams({
               ...searchParams,
               search: values.search,
-            }).toString();
+            });
 
-            router.push(`/admin/products?${urlSearchParams.toString()}`);
+            router.push(`${pathname}?${urlSearchParams.toString()}`);
           }}
         />
         <div className="flex items-center justify-center gap-2">
