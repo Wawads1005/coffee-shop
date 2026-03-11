@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import {
   CellContext,
   flexRender,
@@ -195,30 +196,33 @@ function getPages(
 
 interface DataTablePaginationProps<TData> {
   table: ReactTable<TData>;
+  pageCount?: number;
+  pagination?: PaginationState;
+  onPaginationChange?: (pagination: PaginationState) => void;
 }
 
 function DataTablePagination<TData>({
   table,
+  pagination = { pageIndex: 0, pageSize: 10 },
+  pageCount = 5,
+  onPaginationChange,
 }: DataTablePaginationProps<TData>) {
-  const { pagination } = table.getState();
-  const pageCount = table.getPageCount();
-  const pages = getPages(pageCount, pagination);
-  const pageSizes = [5, 10, 15, 20, 25];
+  const pages = React.useMemo(
+    () => getPages(pageCount, pagination),
+    [pageCount, pagination],
+  );
+  const pageSizes = React.useMemo(() => [5, 10, 15, 20, 25], []);
 
   return (
     <div className="flex items-center justify-center gap-4">
       <div className="text-muted-foreground text-sm">
-        Selected {table.getSelectedRowModel().rows.length} out of{" "}
-        {table.getRowCount()} items.
+        Selected {Object.keys(table.getState().rowSelection).length} out of{" "}
+        {pageCount * pagination.pageSize} items.
       </div>
       <Pagination className="mr-0 w-auto sm:mx-auto sm:w-full">
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious
-              aria-disabled={!table.getCanPreviousPage()}
-              onClick={() => table.getCanPreviousPage() && table.previousPage()}
-              className="aria-disabled:bg-muted aria-disabled:text-muted-foreground cursor-pointer aria-disabled:cursor-not-allowed"
-            />
+            <PaginationPrevious className="aria-disabled:bg-muted aria-disabled:text-muted-foreground cursor-pointer aria-disabled:cursor-not-allowed" />
           </PaginationItem>
           {pages.map((page) => {
             const isActive = pagination.pageIndex === page;
@@ -227,7 +231,9 @@ function DataTablePagination<TData>({
               <PaginationItem key={page} className="hidden sm:block">
                 <PaginationLink
                   isActive={isActive}
-                  onClick={() => table.setPageIndex(page)}
+                  onClick={() => {
+                    onPaginationChange?.({ ...pagination, pageIndex: page });
+                  }}
                 >
                   {page + 1}
                 </PaginationLink>
@@ -235,17 +241,15 @@ function DataTablePagination<TData>({
             );
           })}
           <PaginationItem>
-            <PaginationNext
-              aria-disabled={!table.getCanNextPage()}
-              className="aria-disabled:bg-muted aria-disabled:text-muted-foreground cursor-pointer aria-disabled:cursor-not-allowed"
-              onClick={() => table.getCanNextPage() && table.nextPage()}
-            />
+            <PaginationNext className="aria-disabled:bg-muted aria-disabled:text-muted-foreground cursor-pointer aria-disabled:cursor-not-allowed" />
           </PaginationItem>
         </PaginationContent>
       </Pagination>
       <Select
         value={pagination.pageSize}
-        onValueChange={(pageSize) => pageSize && table.setPageSize(pageSize)}
+        onValueChange={(pageSize) =>
+          pageSize && onPaginationChange?.({ ...pagination, pageSize })
+        }
       >
         <SelectTrigger>
           <SelectValue />

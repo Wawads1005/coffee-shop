@@ -25,6 +25,8 @@ import { usePathname, useRouter } from "next/navigation";
 
 interface ProductsPageSearchParams {
   search?: string;
+  pageIndex?: string;
+  pageSize?: string;
 }
 
 interface ProductsPageProps {
@@ -36,9 +38,22 @@ function ProductsPage({ ...props }: ProductsPageProps) {
   const searchParams = React.use(props.searchParams);
   const router = useRouter();
 
+  const tablePagination = {
+    pageIndex: searchParams.pageIndex
+      ? (parseInt(searchParams.pageIndex, 10) ?? 1) - 1
+      : 0,
+    pageSize: searchParams.pageSize
+      ? (parseInt(searchParams.pageSize, 10) ?? 10)
+      : 10,
+  };
+
   const productsQuery = useProductsQuery({
     filter: {
       search: searchParams.search,
+    },
+    pagination: {
+      limit: tablePagination.pageSize,
+      offset: tablePagination.pageIndex * tablePagination.pageSize,
     },
   });
 
@@ -106,7 +121,26 @@ function ProductsPage({ ...props }: ProductsPageProps) {
         </div>
       </div>
       <DataTable table={productsTable} />
-      <DataTablePagination table={productsTable} />
+      {productsQuery.data && (
+        <DataTablePagination
+          table={productsTable}
+          pageCount={Math.ceil(
+            productsQuery.data.total / tablePagination.pageSize,
+          )}
+          pagination={tablePagination}
+          onPaginationChange={(pagination) => {
+            const urlSearchParams = new URLSearchParams({ ...searchParams });
+
+            urlSearchParams.set("pageIndex", `${pagination.pageIndex + 1}`);
+            urlSearchParams.set("pageSize", `${pagination.pageSize}`);
+            if (pagination.pageSize !== tablePagination.pageSize) {
+              urlSearchParams.set("pageIndex", `${1}`);
+            }
+
+            router.push(`${pathname}?${urlSearchParams.toString()}`);
+          }}
+        />
+      )}
     </div>
   );
 }

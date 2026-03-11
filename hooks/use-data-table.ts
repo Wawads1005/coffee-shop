@@ -6,26 +6,28 @@ import {
   ColumnFiltersState,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
-  PaginationState,
   RowSelectionState,
   SortingState,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
 
-interface UseDataTableProps<TData> {
+interface Data {
+  id: string;
+}
+
+interface UseDataTableProps<TData extends Data> {
   data: TData[];
   columns: ColumnDef<TData>[];
 }
 
-function useDataTable<TData>({ data, columns }: UseDataTableProps<TData>) {
+function useDataTable<TData extends Data>({
+  data,
+  columns,
+}: UseDataTableProps<TData>) {
+  "use memo";
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [pagination, setPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 5,
-  });
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -40,22 +42,21 @@ function useDataTable<TData>({ data, columns }: UseDataTableProps<TData>) {
     data,
     columns,
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getRowId: (row) => row.id,
     state: {
       sorting,
-      pagination,
       rowSelection,
       columnFilters,
       columnVisibility,
     },
     onSortingChange: setSorting,
-    onPaginationChange: setPagination,
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     manualFiltering: true,
+    manualPagination: true,
   });
 
   return productsTable;
