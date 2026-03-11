@@ -124,9 +124,7 @@ function ProductsPage({ ...props }: ProductsPageProps) {
       {productsQuery.data && (
         <DataTablePagination
           table={productsTable}
-          pageCount={Math.ceil(
-            productsQuery.data.total / tablePagination.pageSize,
-          )}
+          total={productsQuery.data.total}
           pagination={tablePagination}
           onPaginationChange={(pagination) => {
             const urlSearchParams = new URLSearchParams({ ...searchParams });

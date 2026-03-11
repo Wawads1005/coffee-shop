@@ -196,7 +196,7 @@ function getPages(
 
 interface DataTablePaginationProps<TData> {
   table: ReactTable<TData>;
-  pageCount?: number;
+  total?: number;
   pagination?: PaginationState;
   onPaginationChange?: (pagination: PaginationState) => void;
 }
@@ -204,25 +204,36 @@ interface DataTablePaginationProps<TData> {
 function DataTablePagination<TData>({
   table,
   pagination = { pageIndex: 0, pageSize: 10 },
-  pageCount = 5,
+  total = 5,
   onPaginationChange,
 }: DataTablePaginationProps<TData>) {
+  const pageCount = Math.ceil(total / pagination.pageSize);
   const pages = React.useMemo(
     () => getPages(pageCount, pagination),
     [pageCount, pagination],
   );
+
   const pageSizes = React.useMemo(() => [5, 10, 15, 20, 25], []);
+  const selectedRowIds = Object.keys(table.getState().rowSelection);
 
   return (
     <div className="flex items-center justify-center gap-4">
       <div className="text-muted-foreground text-sm">
-        Selected {Object.keys(table.getState().rowSelection).length} out of{" "}
-        {pageCount * pagination.pageSize} items.
+        Selected {selectedRowIds.length} out of {total} items.
       </div>
       <Pagination className="mr-0 w-auto sm:mx-auto sm:w-full">
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious className="aria-disabled:bg-muted aria-disabled:text-muted-foreground cursor-pointer aria-disabled:cursor-not-allowed" />
+            <PaginationPrevious
+              aria-disabled={pagination.pageIndex <= 0}
+              className="aria-disabled:bg-muted aria-disabled:text-muted-foreground cursor-pointer aria-disabled:cursor-not-allowed"
+              onClick={() =>
+                onPaginationChange?.({
+                  ...pagination,
+                  pageIndex: Math.max(0, pagination.pageIndex - 1),
+                })
+              }
+            />
           </PaginationItem>
           {pages.map((page) => {
             const isActive = pagination.pageIndex === page;
@@ -241,7 +252,17 @@ function DataTablePagination<TData>({
             );
           })}
           <PaginationItem>
-            <PaginationNext className="aria-disabled:bg-muted aria-disabled:text-muted-foreground cursor-pointer aria-disabled:cursor-not-allowed" />
+            <PaginationNext
+              aria-disabled={pagination.pageIndex + 1 >= pageCount}
+              onClick={() =>
+                pagination.pageIndex + 1 < pageCount &&
+                onPaginationChange?.({
+                  ...pagination,
+                  pageIndex: pagination.pageIndex + 1,
+                })
+              }
+              className="aria-disabled:bg-muted aria-disabled:text-muted-foreground cursor-pointer aria-disabled:cursor-not-allowed"
+            />
           </PaginationItem>
         </PaginationContent>
       </Pagination>

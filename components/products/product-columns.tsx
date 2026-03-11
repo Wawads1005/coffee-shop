@@ -111,15 +111,13 @@ const productColumns: ColumnDef<Product>[] = [
       const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
       const { rowSelection } = info.table.getState();
 
-      const selectedIds = Object.keys(rowSelection).filter(
-        (id) => rowSelection[id],
-      );
+      const selectedRowIds = Object.keys(rowSelection);
 
       return (
         <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
           <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
             <DropdownMenuTrigger
-              hidden={selectedIds.length <= 0}
+              hidden={selectedRowIds.length <= 0}
               render={
                 <Button variant="ghost">
                   <EllipsisIcon />
@@ -140,7 +138,7 @@ const productColumns: ColumnDef<Product>[] = [
                   <TrashIcon />
                   <span>Delete</span>
                   <Badge variant="destructive" className="ml-auto">
-                    {selectedIds.length}
+                    {selectedRowIds.length}
                   </Badge>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
