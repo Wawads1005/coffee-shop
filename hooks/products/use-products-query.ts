@@ -2,19 +2,12 @@
 
 import { getProducts } from "@/actions/products/get-products";
 import { GetProductsQuerySchema } from "@/validators/products/get-products";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 function useProductsQuery(query?: GetProductsQuerySchema) {
-  const productsQuery = useInfiniteQuery({
+  const productsQuery = useQuery({
     queryKey: ["products", query],
-    queryFn: async ({ pageParam }) =>
-      await getProducts({
-        ...query,
-        pagination: { ...query?.pagination, offset: pageParam },
-      }),
-    getPreviousPageParam: (firstPage) => firstPage.offset,
-    getNextPageParam: (lastPage) => lastPage.nextOffset,
-    initialPageParam: 0,
+    queryFn: async () => await getProducts(query),
   });
 
   return productsQuery;

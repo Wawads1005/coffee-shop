@@ -39,9 +39,7 @@ function ProductsPage(props: ProductsPageProps) {
   const router = useRouter();
 
   const productsQuery = useProductsQuery({ filter: searchParams });
-  const products = productsQuery.data
-    ? productsQuery.data.pages.flatMap((page) => page.products)
-    : [];
+  const products = productsQuery.data ? productsQuery.data.products : [];
 
   return (
     <div className="container mx-auto w-full max-w-360 space-y-4 p-4 md:space-y-8 md:p-8">

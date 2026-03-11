@@ -56,10 +56,7 @@ function CategoriesPage({ ...props }: CategoriesPageProps) {
 
   const searchParams = React.use(props.searchParams);
   const categories = React.useMemo(
-    () =>
-      categoriesQuery.data
-        ? categoriesQuery.data.pages.flatMap((page) => page.categories)
-        : [],
+    () => (categoriesQuery.data ? categoriesQuery.data.categories : []),
     [categoriesQuery.data],
   );
 

@@ -31,10 +31,7 @@ function CategoryCollapsibleBranch({
     filter: { parentId: category.id },
   });
   const subcategories = React.useMemo(
-    () =>
-      subcategoriesQuery.data
-        ? subcategoriesQuery.data.pages.flatMap((page) => page.categories)
-        : [],
+    () => (subcategoriesQuery.data ? subcategoriesQuery.data.categories : []),
     [subcategoriesQuery.data],
   );
 

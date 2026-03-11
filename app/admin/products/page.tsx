@@ -43,10 +43,7 @@ function ProductsPage({ ...props }: ProductsPageProps) {
   });
 
   const products = React.useMemo(
-    () =>
-      productsQuery.data
-        ? productsQuery.data.pages.flatMap((page) => page.products)
-        : [],
+    () => (productsQuery.data ? productsQuery.data.products : []),
     [productsQuery.data],
   );
 

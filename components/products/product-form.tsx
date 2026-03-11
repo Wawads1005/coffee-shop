@@ -46,9 +46,10 @@ function ProductForm({
   ...props
 }: ProductFormProps) {
   const categoriesQuery = useCategoriesQuery();
-  const categories = categoriesQuery.data
-    ? categoriesQuery.data.pages.flatMap((page) => page.categories)
-    : [];
+  const categories = React.useMemo(
+    () => (categoriesQuery.data ? categoriesQuery.data.categories : []),
+    [categoriesQuery.data],
+  );
   const productForm = useProductForm({ defaultValues });
 
   return (
