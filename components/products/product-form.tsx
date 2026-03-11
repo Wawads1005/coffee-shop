@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { categories } from "@/data/categories";
 import { useProductForm } from "@/hooks/products/use-product-form";
 import {
   Field,
@@ -29,6 +28,7 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@/components/ui/input-group";
+import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
 
 interface ProductFormProps extends Omit<
   React.ComponentProps<"form">,
@@ -45,6 +45,10 @@ function ProductForm({
   className,
   ...props
 }: ProductFormProps) {
+  const categoriesQuery = useCategoriesQuery();
+  const categories = categoriesQuery.data
+    ? categoriesQuery.data.pages.flatMap((page) => page.categories)
+    : [];
   const productForm = useProductForm({ defaultValues });
 
   return (
@@ -108,7 +112,7 @@ function ProductForm({
         />
         <div className="grid grid-cols-2 gap-4">
           <productForm.Field
-            name="price"
+            name="priceCents"
             children={(field) => {
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
@@ -126,12 +130,14 @@ function ProductForm({
                       name={field.name}
                       id={field.name}
                       type="number"
-                      value={field.state.value}
-                      onChange={(e) =>
-                        field.handleChange(parseFloat(e.currentTarget.value))
-                      }
+                      min={0}
+                      value={field.state.value / 100}
+                      onChange={(e) => {
+                        const price = parseFloat(e.currentTarget.value) * 100;
+
+                        field.handleChange(price);
+                      }}
                       onBlur={() => field.handleBlur()}
-                      placeholder="Espresso"
                     />
                   </InputGroup>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -155,12 +161,7 @@ function ProductForm({
                   <FieldLabel htmlFor={field.name} className="capitalize">
                     Category
                   </FieldLabel>
-                  <Select
-                    items={items}
-                    defaultValue={
-                      field.state.value === -1 ? null : field.state.value
-                    }
-                  >
+                  <Select items={items} defaultValue={field.state.value}>
                     <SelectTrigger id={field.name} name={field.name}>
                       <SelectValue placeholder="Select a category..." />
                     </SelectTrigger>

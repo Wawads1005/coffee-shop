@@ -4,6 +4,7 @@ import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
+import { AppQueryClientProvider } from "@/components/globals/app-query-client-provider";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -20,10 +21,12 @@ function RootLayout({ children }: RootLayoutProps) {
     >
       <head />
       <body className="min-h-screen antialiased">
-        <TooltipProvider>
-          {children}
-          <Toaster />
-        </TooltipProvider>
+        <AppQueryClientProvider>
+          <TooltipProvider>
+            {children}
+            <Toaster />
+          </TooltipProvider>
+        </AppQueryClientProvider>
       </body>
     </html>
   );

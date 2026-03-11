@@ -1,8 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Product } from "@/data/products";
-import { categories } from "@/data/categories";
 import { ColumnDef } from "@tanstack/react-table";
 import { EditIcon, EllipsisIcon, TrashIcon } from "lucide-react";
 
@@ -40,6 +38,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { ProductForm } from "@/components/products/product-form";
+import { Product } from "@/drizzle/schemas";
 
 const productColumns: ColumnDef<Product>[] = [
   {
@@ -55,32 +54,23 @@ const productColumns: ColumnDef<Product>[] = [
     enableHiding: false,
   },
   { accessorKey: "description", header: "Description" },
+  // {
+  //   accessorKey: "categoryId",
+  //   header: "Category",
+  //   cell: (info) => {
+  //     const category = info.getValue<string>();
+
+  //     return <span>{category}</span>;
+  //   },
+  // },
   {
-    accessorFn: (row) => {
-      const category = categories.find(
-        (category) => category.id === row.categoryId,
-      );
-
-      if (!category) {
-        return;
-      }
-
-      return category.name;
-    },
-    header: "Category",
-    cell: (info) => {
-      const categoryName = info.getValue<string>();
-
-      return <span>{categoryName}</span>;
-    },
-  },
-  {
-    accessorKey: "price",
+    id: "price",
+    accessorKey: "priceCents",
     header: DataTableColumnSorter,
     cell: (info) => {
-      const price = info.getValue<number>();
+      const priceCents = Math.floor(info.getValue<number>() / 100);
 
-      return <span>&#8369;{price.toFixed(2)}</span>;
+      return <span>&#8369;{priceCents.toFixed(2)}</span>;
     },
     enableGlobalFilter: false,
   },

@@ -1,12 +1,9 @@
-import { Category } from "@/data/categories";
 import { CircleCheckIcon, EditIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Card,
-  CardAction,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -32,6 +29,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { CategoryForm } from "@/components/categories/category-form";
+import { Category } from "@/drizzle/schemas";
 
 interface CategoryCardProps {
   category: Category;
@@ -39,11 +37,8 @@ interface CategoryCardProps {
 
 function CategoryCard({ category }: CategoryCardProps) {
   return (
-    <Card>
+    <Card size="sm">
       <CardHeader>
-        <CardAction>
-          <Badge>{category.id}</Badge>
-        </CardAction>
         <CardTitle>{category.name}</CardTitle>
         <CardDescription>{category.description}</CardDescription>
       </CardHeader>
@@ -52,7 +47,7 @@ function CategoryCard({ category }: CategoryCardProps) {
           <Dialog>
             <DialogTrigger
               render={
-                <Button variant="outline">
+                <Button variant="outline" size="sm">
                   <EditIcon />
                   <span>Edit</span>
                 </Button>
@@ -71,7 +66,7 @@ function CategoryCard({ category }: CategoryCardProps) {
           <AlertDialog>
             <AlertDialogTrigger
               render={
-                <Button variant="destructive">
+                <Button variant="destructive" size="sm">
                   <TrashIcon />
                   <span>Delete</span>
                 </Button>

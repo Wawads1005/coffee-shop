@@ -1,6 +1,8 @@
+"use client";
+
+import * as React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { categories, Category } from "@/data/categories";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -10,14 +12,23 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { Category } from "@/drizzle/schemas";
+import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
 
 interface CategoryNavigationBranchProps {
   category: Category;
 }
 
 function CategoryNavigationBranch({ category }: CategoryNavigationBranchProps) {
-  const subcategories = categories.filter(
-    (subcategory) => subcategory.parentId === category.id,
+  const subcategoriesQuery = useCategoriesQuery({
+    filter: { parentId: category.id },
+  });
+  const subcategories = React.useMemo(
+    () =>
+      subcategoriesQuery.data
+        ? subcategoriesQuery.data.pages.flatMap((page) => page.categories)
+        : [],
+    [subcategoriesQuery.data],
   );
 
   if (!subcategories.length) {

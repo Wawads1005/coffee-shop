@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { CategoryCollapsibleBranch } from "@/components/categories/category-collapsible-branch";
 import { CategoryCard } from "@/components/categories/category-card";
 import { CategoryForm } from "@/components/categories/category-form";
@@ -24,30 +25,43 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { categories } from "@/data/categories";
-import { PackageOpenIcon, PlusCircleIcon, TagIcon } from "lucide-react";
-import * as React from "react";
+import {
+  AlertTriangleIcon,
+  PackageOpenIcon,
+  PlusCircleIcon,
+  RefreshCcwIcon,
+  TagIcon,
+} from "lucide-react";
+import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
+import { useRouter } from "next/navigation";
+import { useCategoryQuery } from "@/hooks/categories/use-category-query";
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
 
-function CategoriesPage() {
-  const [selectedCategoryId, setSelectedCategoryId] = React.useState<
-    number | null
-  >(null);
+interface CategoriesPageSearchParams {
+  id?: string;
+}
 
-  const selectedCategory = React.useMemo(() => {
-    if (!selectedCategoryId) {
-      return null;
-    }
+interface CategoriesPageProps {
+  searchParams: Promise<CategoriesPageSearchParams>;
+}
 
-    const foundSelectedCategory = categories.find(
-      (category) => category.id === selectedCategoryId,
-    );
+function CategoriesPage({ ...props }: CategoriesPageProps) {
+  const router = useRouter();
+  const categoriesQuery = useCategoriesQuery({ filter: { parentId: null } });
 
-    if (!foundSelectedCategory) {
-      return null;
-    }
-
-    return foundSelectedCategory;
-  }, [selectedCategoryId]);
+  const searchParams = React.use(props.searchParams);
+  const categories = React.useMemo(
+    () =>
+      categoriesQuery.data
+        ? categoriesQuery.data.pages.flatMap((page) => page.categories)
+        : [],
+    [categoriesQuery.data],
+  );
 
   return (
     <div className="container mx-auto w-full max-w-360 space-y-4 px-4 py-4 sm:px-8 md:space-y-8 md:px-16 md:py-8">
@@ -86,13 +100,7 @@ function CategoriesPage() {
                     category.
                   </DialogDescription>
                 </DialogHeader>
-                <CategoryForm>
-                  {/* <div className="rounded-md bg-emerald-500/15 px-4 py-2">
-                    <p className="text-sm text-emerald-500">
-                      You have successfully created a new category.
-                    </p>
-                  </div> */}
-                </CategoryForm>
+                <CategoryForm />
               </DialogContent>
             </Dialog>
           </div>
@@ -101,27 +109,23 @@ function CategoriesPage() {
 
       <div className="flex flex-col gap-8 md:flex-row">
         <div className="flex w-full flex-col gap-1 md:max-w-80">
-          {categories
-            .filter((category) => category.parentId === null)
-            .map((category) => {
-              return (
-                <CategoryCollapsibleBranch
-                  onSelectCategory={(categoryId) =>
-                    setSelectedCategoryId((selectedCategoryId) =>
-                      selectedCategoryId === categoryId ? null : categoryId,
-                    )
-                  }
-                  key={category.id}
-                  category={category}
-                >
-                  <TagIcon />
-                </CategoryCollapsibleBranch>
-              );
-            })}
+          {categories.map((category) => {
+            return (
+              <CategoryCollapsibleBranch
+                onSelectCategory={(categoryId) =>
+                  router.push(`/admin/categories?id=${categoryId}`)
+                }
+                key={category.id}
+                category={category}
+              >
+                <TagIcon />
+              </CategoryCollapsibleBranch>
+            );
+          })}
         </div>
         <div className="flex-1">
-          {selectedCategory ? (
-            <CategoryCard category={selectedCategory} />
+          {searchParams.id ? (
+            <SelectedCategoryCard id={searchParams.id} />
           ) : (
             <Empty>
               <EmptyHeader>
@@ -139,6 +143,43 @@ function CategoriesPage() {
       </div>
     </div>
   );
+}
+
+interface SelectedCategoryCardProps {
+  id: string;
+}
+
+function SelectedCategoryCard({ id }: SelectedCategoryCardProps) {
+  const categoryQuery = useCategoryQuery({ id });
+  const category = categoryQuery.data ? categoryQuery.data.category : null;
+
+  if (categoryQuery.isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!category) {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangleIcon />
+        <AlertTitle>No category found</AlertTitle>
+        <AlertDescription>
+          Category didn't exists in our database, please enter a valid url.
+        </AlertDescription>
+        <AlertAction>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => await categoryQuery.refetch()}
+          >
+            <RefreshCcwIcon />
+            <span>Retry</span>
+          </Button>
+        </AlertAction>
+      </Alert>
+    );
+  }
+
+  return <CategoryCard category={category} />;
 }
 
 export default CategoriesPage;

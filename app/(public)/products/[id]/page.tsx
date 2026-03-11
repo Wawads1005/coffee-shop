@@ -10,7 +10,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { products } from "@/data/products";
+import { useProductQuery } from "@/hooks/products/use-product-query";
 import {
   HomeIcon,
   PackageIcon,
@@ -28,14 +28,12 @@ interface ProductPageProps {
   params: Promise<ProductPageParams>;
 }
 
-function ProductPage({ params }: ProductPageProps) {
-  const { id } = React.use(params);
+function ProductPage({ ...props }: ProductPageProps) {
+  const params = React.use(props.params);
+  const productQuery = useProductQuery(params);
+  const product = productQuery.data ? productQuery.data.product : null;
 
-  const foundProduct = products.find(
-    (product) => product.id === parseInt(id, 10),
-  );
-
-  if (!foundProduct) {
+  if (!product) {
     return (
       <div className="container mx-auto mt-16">
         <Empty>
@@ -63,7 +61,6 @@ function ProductPage({ params }: ProductPageProps) {
                 nativeButton={false}
                 render={
                   <Link href="/">
-                    variant="outline"
                     <HomeIcon />
                     <span>Home</span>
                   </Link>
@@ -81,20 +78,20 @@ function ProductPage({ params }: ProductPageProps) {
       <div className="relative aspect-video overflow-hidden rounded-md">
         <img
           src="/placeholder.svg"
-          alt={foundProduct.name}
+          alt={product.name}
           className="size-full object-cover object-center"
         />
       </div>
       <div className="flex flex-col gap-2 md:gap-4">
         <div className="space-y-2">
           <div className="text-base font-semibold md:text-lg">
-            {foundProduct.name}
+            {product.name}
           </div>
           <div className="text-muted-foreground text-sm md:text-base">
-            {foundProduct.description}
+            {product.description}
           </div>
           <div className="font-mono text-lg font-bold">
-            &#8369;{foundProduct.price.toFixed(2)}
+            &#8369;{Math.floor(product.priceCents / 100).toFixed(2)}
           </div>
           <Button>
             <ShoppingCartIcon />

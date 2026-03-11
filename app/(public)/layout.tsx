@@ -1,7 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { categories } from "@/data/categories";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -22,12 +21,16 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "lucide-react";
+import { getCategories } from "@/actions/categories/get-categories";
 
 interface PublicLayoutProps {
   children?: React.ReactNode;
 }
 
-function PublicLayout({ children }: PublicLayoutProps) {
+async function PublicLayout({ children }: PublicLayoutProps) {
+  const response = await getCategories();
+  const { categories } = response;
+
   return (
     <React.Fragment>
       <header className="bg-background sticky top-0 right-0 left-0 z-50 h-16 w-full shadow">

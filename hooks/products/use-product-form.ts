@@ -17,10 +17,10 @@ function useProductForm({ defaultValues }: UseProductFormProps) {
       onSubmit: productFormSchema,
     },
     defaultValues: {
-      categoryId: defaultValues ? defaultValues.categoryId : -1,
+      categoryId: defaultValues ? defaultValues.categoryId : "",
       name: defaultValues ? defaultValues.name : "",
       description: defaultValues ? defaultValues.description : "",
-      price: defaultValues ? defaultValues.price : 0,
+      priceCents: defaultValues ? defaultValues.priceCents : 0,
       image: defaultValues ? defaultValues.image : "",
     },
   });

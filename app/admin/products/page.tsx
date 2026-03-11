@@ -1,6 +1,6 @@
 "use client";
 
-import { products } from "@/data/products";
+import * as React from "react";
 import { productColumns } from "@/components/products/product-columns";
 import {
   DataTable,
@@ -20,8 +20,28 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ProductForm } from "@/components/products/product-form";
+import { useProductsQuery } from "@/hooks/products/use-products-query";
 
-function ProductsPage() {
+interface ProductsPageSearchParams {
+  pageIndex?: string;
+  pageSize?: string;
+  search?: string;
+}
+
+interface ProductsPageProps {
+  searchParams: Promise<ProductsPageSearchParams>;
+}
+
+function ProductsPage({}: ProductsPageProps) {
+  const productsQuery = useProductsQuery();
+  const products = React.useMemo(
+    () =>
+      productsQuery.data
+        ? productsQuery.data.pages.flatMap((page) => page.products)
+        : [],
+    [productsQuery.data],
+  );
+
   const productsTable = useDataTable({
     data: products,
     columns: productColumns,

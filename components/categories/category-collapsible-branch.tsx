@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { categories, Category } from "@/data/categories";
 import { ChevronRightIcon } from "lucide-react";
 import {
   Collapsible,
@@ -11,12 +10,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { cn } from "@/lib/utils";
+import { Category } from "@/drizzle/schemas";
+import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
 
 interface CategoryCollapsibleBranchProps extends React.ComponentProps<
   typeof Button
 > {
   category: Category;
-  onSelectCategory?: (categoryId: number) => void;
+  onSelectCategory?: (categoryId: string) => void;
 }
 
 function CategoryCollapsibleBranch({
@@ -26,8 +27,15 @@ function CategoryCollapsibleBranch({
   className,
   ...props
 }: CategoryCollapsibleBranchProps) {
-  const subcategories = categories.filter(
-    (subcategory) => subcategory.parentId === category.id,
+  const subcategoriesQuery = useCategoriesQuery({
+    filter: { parentId: category.id },
+  });
+  const subcategories = React.useMemo(
+    () =>
+      subcategoriesQuery.data
+        ? subcategoriesQuery.data.pages.flatMap((page) => page.categories)
+        : [],
+    [subcategoriesQuery.data],
   );
 
   if (subcategories.length) {
@@ -35,6 +43,7 @@ function CategoryCollapsibleBranch({
       <Collapsible>
         <ButtonGroup className="w-full">
           <Button
+            size="sm"
             onClick={() => onSelectCategory?.(category.id)}
             variant="ghost"
             className={cn("flex-1 justify-start", className)}
@@ -46,7 +55,7 @@ function CategoryCollapsibleBranch({
 
           <CollapsibleTrigger
             render={
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon-sm">
                 <ChevronRightIcon className="transition-transform group-data-panel-open/button:rotate-90" />
               </Button>
             }
@@ -80,6 +89,7 @@ function CategoryCollapsibleBranch({
       variant="ghost"
       className={cn("justify-start")}
       onClick={() => onSelectCategory?.(category.id)}
+      size="sm"
       {...props}
     >
       {children}
