@@ -30,7 +30,6 @@ function useDataTable<TData>({ data, columns }: UseDataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
-  const [globalFilter, setGlobalFilter] = React.useState("");
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
       createdAt: false,
@@ -49,14 +48,12 @@ function useDataTable<TData>({ data, columns }: UseDataTableProps<TData>) {
       pagination,
       rowSelection,
       columnFilters,
-      globalFilter,
       columnVisibility,
     },
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColumnVisibility,
     manualFiltering: true,
   });

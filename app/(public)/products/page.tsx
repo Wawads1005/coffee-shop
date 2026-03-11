@@ -22,7 +22,7 @@ import { HomeIcon, PackageIcon, PackageOpenIcon } from "lucide-react";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
 import { ProductSearchForm } from "@/components/products/product-search-form";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useProductsQuery } from "@/hooks/products/use-products-query";
 
 interface ProductsPageSearchParams {
@@ -36,6 +36,7 @@ interface ProductsPageProps {
 
 function ProductsPage(props: ProductsPageProps) {
   const searchParams = React.use(props.searchParams);
+  const pathname = usePathname();
   const router = useRouter();
 
   const productsQuery = useProductsQuery({ filter: searchParams });
@@ -46,7 +47,15 @@ function ProductsPage(props: ProductsPageProps) {
       <div className="flex items-center justify-between gap-4 md:gap-8">
         <ProductSearchForm
           onSubmit={(value) => {
-            router.push(`/products?search=${value.search}`);
+            const urlSearchParams = new URLSearchParams({ ...searchParams });
+
+            if (value.search.length <= 0) {
+              urlSearchParams.delete("search");
+            } else {
+              urlSearchParams.set("search", value.search);
+            }
+
+            router.push(`${pathname}?${urlSearchParams.toString()}`);
           }}
           className="ml-auto max-w-sm flex-1"
         />
