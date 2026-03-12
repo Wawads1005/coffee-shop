@@ -36,7 +36,6 @@ interface CategoryFormProps extends Omit<
 function CategoryForm({
   defaultValues,
   onSubmit,
-  onReset,
   children,
   className,
   ...props
@@ -53,10 +52,6 @@ function CategoryForm({
         e.preventDefault();
 
         onSubmit?.(categoryForm.state.values, categoryForm);
-      }}
-      onReset={(e) => {
-        categoryForm.reset();
-        onReset?.(e);
       }}
       className={cn("grid gap-2", className)}
       {...props}
