@@ -1,6 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Category } from "@/drizzle/schemas";
+import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
+
 import { ChevronRightIcon } from "lucide-react";
 import {
   Collapsible,
@@ -9,9 +13,6 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { cn } from "@/lib/utils";
-import { Category } from "@/drizzle/schemas";
-import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
 
 interface CategoryCollapsibleBranchProps extends React.ComponentProps<
   typeof Button

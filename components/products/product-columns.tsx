@@ -2,8 +2,10 @@
 
 import * as React from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { EditIcon, EllipsisIcon, TrashIcon } from "lucide-react";
+import { Product } from "@/drizzle/schemas";
+import { useCategoryQuery } from "@/hooks/categories/use-category-query";
 
+import { EditIcon, EllipsisIcon, TrashIcon } from "lucide-react";
 import {
   DataTableColumnSelector,
   DataTableColumnSorter,
@@ -38,8 +40,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { ProductForm } from "@/components/products/product-form";
-import { Product } from "@/drizzle/schemas";
-import { useCategoryQuery } from "@/hooks/categories/use-category-query";
 
 const productColumns: ColumnDef<Product>[] = [
   {

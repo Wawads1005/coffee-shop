@@ -3,6 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Category } from "@/drizzle/schemas";
+import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
+
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,8 +15,6 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { Category } from "@/drizzle/schemas";
-import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
 
 interface CategoryNavigationBranchProps {
   category: Category;

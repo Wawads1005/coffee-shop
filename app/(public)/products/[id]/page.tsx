@@ -1,5 +1,9 @@
 "use client";
 
+import * as React from "react";
+import Link from "next/link";
+import { useProductQuery } from "@/hooks/products/use-product-query";
+
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import {
@@ -10,15 +14,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { useProductQuery } from "@/hooks/products/use-product-query";
 import {
   HomeIcon,
   PackageIcon,
   PackageOpenIcon,
   ShoppingCartIcon,
 } from "lucide-react";
-import Link from "next/link";
-import * as React from "react";
 
 interface ProductPageParams {
   id: string;

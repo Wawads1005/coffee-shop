@@ -2,6 +2,8 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { CategoryFormSchema } from "@/validators/categories/category-form";
 import { useCategoryForm } from "@/hooks/categories/use-category-form";
+import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
+
 import {
   Field,
   FieldError,
@@ -18,8 +20,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
+} from "@/components/ui/select";
 
 interface CategoryFormProps extends Omit<
   React.ComponentProps<"form">,

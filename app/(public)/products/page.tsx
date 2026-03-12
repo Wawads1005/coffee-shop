@@ -1,6 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useProductsInfiniteQuery } from "@/hooks/products/use-products-infinite-query";
+
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -18,12 +21,10 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { HomeIcon, PackageIcon, PackageOpenIcon } from "lucide-react";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
 import { ProductSearchForm } from "@/components/products/product-search-form";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useProductsInfiniteQuery } from "@/hooks/products/use-products-infinite-query";
+import { HomeIcon, PackageIcon, PackageOpenIcon } from "lucide-react";
 
 interface ProductsPageSearchParams {
   category?: string;

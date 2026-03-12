@@ -1,6 +1,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { getCategories } from "@/actions/categories/get-categories";
+
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -21,7 +23,6 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "lucide-react";
-import { getCategories } from "@/actions/categories/get-categories";
 
 interface PublicLayoutProps {
   children?: React.ReactNode;

@@ -1,6 +1,12 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
+import { slugify } from "@/lib/utils";
+import { useCategoryQuery } from "@/hooks/categories/use-category-query";
+import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
+import { useCreateCategoryMutation } from "@/hooks/categories/use-create-category-mutation";
+
 import { CategoryCollapsibleBranch } from "@/components/categories/category-collapsible-branch";
 import { CategoryCard } from "@/components/categories/category-card";
 import { CategoryForm } from "@/components/categories/category-form";
@@ -26,6 +32,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
+import {
   AlertCircleIcon,
   AlertTriangleIcon,
   PackageOpenIcon,
@@ -33,17 +45,6 @@ import {
   RefreshCcwIcon,
   TagIcon,
 } from "lucide-react";
-import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
-import { useRouter } from "next/navigation";
-import { useCategoryQuery } from "@/hooks/categories/use-category-query";
-import {
-  Alert,
-  AlertAction,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert";
-import { useCreateCategoryMutation } from "@/hooks/categories/use-create-category-mutation";
-import { slugify } from "@/lib/utils";
 
 interface CategoriesPageSearchParams {
   id?: string;

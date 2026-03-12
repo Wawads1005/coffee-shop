@@ -1,5 +1,8 @@
 "use client";
 
+import { slugify } from "@/lib/utils";
+import { Category } from "@/drizzle/schemas";
+import { useUpdateCategoryMutation } from "@/hooks/categories/use-update-category-mutation";
 import {
   AlertCircleIcon,
   CircleCheckIcon,
@@ -36,10 +39,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { CategoryForm } from "@/components/categories/category-form";
-import { Category } from "@/drizzle/schemas";
-import { slugify } from "@/lib/utils";
-import { useUpdateCategoryMutation } from "@/hooks/categories/use-update-category-mutation";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface CategoryCardProps {
   category: Category;

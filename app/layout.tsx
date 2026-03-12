@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import * as React from "react";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { AppQueryClientProvider } from "@/components/globals/app-query-client-provider";

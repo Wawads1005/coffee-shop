@@ -1,7 +1,11 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ProductFormSchema } from "@/validators/products/product-form";
 import { useProductForm } from "@/hooks/products/use-product-form";
+import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
+
 import {
   Field,
   FieldError,
@@ -20,15 +24,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ProductFormSchema } from "@/validators/products/product-form";
-import { cn } from "@/lib/utils";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
 } from "@/components/ui/input-group";
-import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
 
 interface ProductFormProps extends Omit<
   React.ComponentProps<"form">,

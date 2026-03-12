@@ -1,4 +1,5 @@
 import * as React from "react";
+import Link from "next/link";
 import {
   Sidebar,
   SidebarContent,
@@ -13,9 +14,8 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { HomeIcon, PackageIcon, TagsIcon } from "lucide-react";
-import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import { HomeIcon, PackageIcon, TagsIcon } from "lucide-react";
 
 interface AdminLayoutProps {
   children?: React.ReactNode;

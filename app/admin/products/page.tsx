@@ -1,16 +1,19 @@
 "use client";
 
 import * as React from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { GetProductsOrderBySchema } from "@/validators/products/get-products";
+import { useDataTable } from "@/hooks/use-data-table";
+import { useProductsQuery } from "@/hooks/products/use-products-query";
+
 import { productColumns } from "@/components/products/product-columns";
 import {
   DataTable,
   DataTablePagination,
   DataTableViewOptions,
 } from "@/components/ui/data-table";
-import { useDataTable } from "@/hooks/use-data-table";
 import { ProductSearchForm } from "@/components/products/product-search-form";
 import { Button } from "@/components/ui/button";
-import { PlusCircleIcon } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -20,9 +23,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ProductForm } from "@/components/products/product-form";
-import { useProductsQuery } from "@/hooks/products/use-products-query";
-import { usePathname, useRouter } from "next/navigation";
-import { GetProductsOrderBySchema } from "@/validators/products/get-products";
+import { PlusCircleIcon } from "lucide-react";
 
 interface ProductsPageSearchParams {
   search?: string;
