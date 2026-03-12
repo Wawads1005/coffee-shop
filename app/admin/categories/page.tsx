@@ -3,6 +3,8 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/lib/utils";
+import { GetCategoriesQuerySchema } from "@/validators/categories/get-categories";
+
 import { useCategoryQuery } from "@/hooks/categories/use-category-query";
 import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
 import { useCreateCategoryMutation } from "@/hooks/categories/use-create-category-mutation";
@@ -57,14 +59,15 @@ interface CategoriesPageProps {
 function CategoriesPage({ ...props }: CategoriesPageProps) {
   const router = useRouter();
   const searchParams = React.use(props.searchParams);
+  const query: GetCategoriesQuerySchema = { filter: { parentId: null } };
 
-  const categoriesQuery = useCategoriesQuery({ filter: { parentId: null } });
+  const categoriesQuery = useCategoriesQuery(query);
   const categories = React.useMemo(
     () => (categoriesQuery.data ? categoriesQuery.data.categories : []),
     [categoriesQuery.data],
   );
 
-  const createCategoryMutation = useCreateCategoryMutation();
+  const createCategoryMutation = useCreateCategoryMutation({ query });
 
   return (
     <div className="container mx-auto w-full max-w-360 space-y-4 px-4 py-4 sm:px-8 md:space-y-8 md:px-16 md:py-8">
