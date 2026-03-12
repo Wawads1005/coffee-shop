@@ -1,12 +1,13 @@
 "use client";
 
 import { getProducts } from "@/actions/products/get-products";
+import { queryKeys } from "@/lib/query-client";
 import { GetProductsQuerySchema } from "@/validators/products/get-products";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 
-function useProductsInfiniteQuery(query?: GetProductsQuerySchema) {
+function useProductsInfiniteQuery(query: GetProductsQuerySchema = {}) {
   const productsInfiniteQuery = useInfiniteQuery({
-    queryKey: ["products", query],
+    queryKey: queryKeys.products.collections(query),
     queryFn: async ({ pageParam }) =>
       await getProducts({
         ...query,

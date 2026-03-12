@@ -6,9 +6,7 @@ import {
   ColumnFiltersState,
   getCoreRowModel,
   getFilteredRowModel,
-  getSortedRowModel,
   RowSelectionState,
-  SortingState,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";

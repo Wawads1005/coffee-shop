@@ -3,19 +3,18 @@
 import { createCategory } from "@/actions/categories/create-category";
 import { getCategories } from "@/actions/categories/get-categories";
 import { Category } from "@/drizzle/schemas";
+import { queryKeys } from "@/lib/query-client";
 import { GetCategoriesQuerySchema } from "@/validators/categories/get-categories";
-import { GetCategoryParamsSchema } from "@/validators/categories/get-category";
 import { useMutation } from "@tanstack/react-query";
 
 interface UseCreateCategoryMutationProps {
   query?: GetCategoriesQuerySchema;
-  params?: GetCategoryParamsSchema;
 }
 
 type GetCategoriesResponse = Awaited<ReturnType<typeof getCategories>>;
 
 function useCreateCategoryMutation(props?: UseCreateCategoryMutationProps) {
-  const categoriesQueryKey = ["categories", props?.query];
+  const categoriesQueryKey = queryKeys.categories.collections(props?.query);
 
   const createCategoryMutation = useMutation({
     mutationFn: createCategory,
