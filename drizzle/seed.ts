@@ -2,6 +2,7 @@ import "dotenv/config";
 import { db } from "@/lib/db";
 import { productsTable } from "@/drizzle/tables/products";
 import { categoriesTable } from "@/drizzle/tables/categories";
+import { slugify } from "@/lib/utils";
 
 async function clearTables() {
   try {
@@ -53,145 +54,151 @@ async function seedData() {
       return;
     }
 
-    const [
-      coffee,
-      tea,
-      nonCoffee,
-      hotCoffee,
-      icedCoffee,
-      hotTea,
-      icedTea,
-      chocolateDrinks,
-      smoothies,
-      breakfasts,
-      sandwiches,
-      pastries,
-      coffeeBeans,
-      merchandise,
-    ] = await db
+    const [coffee, tea, nonCoffee] = await db
       .insert(categoriesTable)
-      .values(
-        [
-          {
-            name: "Coffee",
-            slug: "coffee",
-            parentId: 1,
-            description: "Espresso based and brewed coffee drinks",
-          },
-          {
-            name: "Tea",
-            slug: "tea",
-            parentId: 1,
-            description: "Hot and iced tea beverages",
-          },
-          {
-            name: "Non Coffee",
-            slug: "non-coffee",
-            parentId: 1,
-            description: "Drinks without coffee",
-          },
-          {
-            name: "Hot Coffee",
-            slug: "hot-coffee",
-            parentId: 4,
-            description: "Hot espresso and brewed coffee drinks",
-          },
-          {
-            name: "Iced Coffee",
-            slug: "iced-coffee",
-            parentId: 4,
-            description: "Cold coffee beverages",
-          },
-          {
-            name: "Hot Tea",
-            slug: "hot-tea",
-            parentId: 5,
-            description: "Hot tea drinks",
-          },
-          {
-            name: "Iced Tea",
-            slug: "iced-tea",
-            parentId: 5,
-            description: "Cold tea beverages",
-          },
-          {
-            name: "Chocolate Drinks",
-            slug: "chocolate-drinks",
-            parentId: 6,
-            description: "Hot chocolate and mocha style drinks",
-          },
-          {
-            name: "Smoothies",
-            slug: "smoothies",
-            parentId: 6,
-            description: "Fruit blended drinks",
-          },
-          {
-            name: "Breakfasts",
-            slug: "breakfasts",
-            parentId: 2,
-            description: "Morning meals and light breakfast",
-          },
-          {
-            name: "Sandwiches",
-            slug: "sandwiches",
-            parentId: 2,
-            description: "Savory sandwiches and wraps",
-          },
-          {
-            name: "Pastries",
-            slug: "pastries",
-            parentId: 2,
-            description: "Baked pastries and sweet treats",
-          },
-          {
-            name: "Coffee Beans",
-            slug: "coffee-beans",
-            parentId: 3,
-            description: "Whole bean coffee for brewing at home",
-          },
-          {
-            name: "Merchandise",
-            slug: "merchandise",
-            parentId: 3,
-            description: "Mugs, tumblers, and cafe merchandise",
-          },
-        ].map((category) => {
-          return {
-            ...category,
-            parentId:
-              category.parentId === 1
-                ? drinks.id
-                : category.parentId === 2
-                  ? foods.id
-                  : category.parentId === 3
-                    ? retails.id
-                    : null,
-          };
-        }),
-      )
+      .values([
+        {
+          name: "Coffee",
+          slug: "coffee",
+          parentId: drinks.id,
+          description: "Espresso based and brewed coffee drinks",
+        },
+        {
+          name: "Tea",
+          slug: "tea",
+          parentId: drinks.id,
+          description: "Hot and iced tea beverages",
+        },
+        {
+          name: "Non Coffee",
+          slug: "non-coffee",
+          parentId: drinks.id,
+          description: "Drinks without coffee",
+        },
+      ])
       .returning();
 
-    console.log(`[log]: Successfully seeded categories table.`);
-
-    if (
-      !coffee ||
-      !tea ||
-      !nonCoffee ||
-      !hotCoffee ||
-      !icedCoffee ||
-      !hotTea ||
-      !icedTea ||
-      !chocolateDrinks ||
-      !smoothies ||
-      !breakfasts ||
-      !sandwiches ||
-      !pastries ||
-      !coffeeBeans ||
-      !merchandise
-    ) {
+    if (!coffee || !tea || !nonCoffee) {
       return;
     }
+
+    const [hotCoffee, icedCoffee] = await db
+      .insert(categoriesTable)
+      .values([
+        {
+          name: "Hot Coffee",
+          slug: "hot-coffee",
+          parentId: coffee.id,
+          description: "Hot espresso and brewed coffee drinks",
+        },
+        {
+          name: "Iced Coffee",
+          slug: "iced-coffee",
+          parentId: coffee.id,
+          description: "Cold coffee beverages",
+        },
+      ])
+      .returning();
+
+    if (!hotCoffee || !icedCoffee) {
+      return;
+    }
+
+    const [hotTea, icedTea] = await db
+      .insert(categoriesTable)
+      .values([
+        {
+          name: "Hot Tea",
+          slug: "hot-tea",
+          parentId: tea.id,
+          description: "Hot tea drinks",
+        },
+        {
+          name: "Iced Tea",
+          slug: "iced-tea",
+          parentId: tea.id,
+          description: "Cold tea beverages",
+        },
+      ])
+      .returning();
+
+    if (!hotTea || !icedTea) {
+      return;
+    }
+
+    const [chocolateDrinks, smoothies] = await db
+      .insert(categoriesTable)
+      .values([
+        {
+          name: "Chocolate Drinks",
+          slug: "chocolate-drinks",
+          parentId: nonCoffee.id,
+          description: "Hot chocolate and mocha style drinks",
+        },
+        {
+          name: "Smoothies",
+          slug: "smoothies",
+          parentId: nonCoffee.id,
+          description: "Fruit blended drinks",
+        },
+      ])
+      .returning();
+
+    if (!chocolateDrinks || !smoothies) {
+      return;
+    }
+
+    const [breakfasts, sandwiches, pastries] = await db
+      .insert(categoriesTable)
+      .values([
+        {
+          name: "Breakfasts",
+          slug: "breakfasts",
+          parentId: foods.id,
+          description: "Morning meals and light breakfast",
+        },
+        {
+          name: "Sandwiches",
+          slug: "sandwiches",
+          parentId: foods.id,
+          description: "Savory sandwiches and wraps",
+        },
+        {
+          name: "Pastries",
+          slug: "pastries",
+          parentId: foods.id,
+          description: "Baked pastries and sweet treats",
+        },
+      ])
+      .returning();
+
+    if (!breakfasts || !sandwiches || !pastries) {
+      return;
+    }
+
+    const [coffeeBeans, merchandise] = await db
+      .insert(categoriesTable)
+      .values([
+        {
+          name: "Coffee Beans",
+          slug: "coffee-beans",
+          parentId: retails.id,
+          description: "Whole bean coffee for brewing at home",
+        },
+        {
+          name: "Merchandise",
+          slug: "merchandise",
+          parentId: retails.id,
+          description: "Mugs, tumblers, and cafe merchandise",
+        },
+      ])
+      .returning();
+
+    if (!coffeeBeans || !merchandise) {
+      return;
+    }
+
+    console.log(`[log]: Successfully seeded categories table.`);
 
     await db.insert(productsTable).values(
       [
@@ -370,16 +377,7 @@ async function seedData() {
         return {
           ...product,
           image: "/placeholder.svg",
-          slug: product.name
-            .toString()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .trim()
-            .replace(/\s+/g, "-")
-            .replace(/[^\w-]+/g, "")
-            .replace(/--+/g, "-")
-            .replace(/^-+|-+$/g, ""),
+          slug: slugify(product.name),
         };
       }),
     );
