@@ -100,7 +100,11 @@ function CategoryForm({
                 <Select
                   items={parents}
                   value={field.state.value}
-                  onValueChange={field.handleChange}
+                  onValueChange={(value) =>
+                    value !== field.state.value
+                      ? field.handleChange(value)
+                      : field.handleChange(null)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="(Optional)" />
