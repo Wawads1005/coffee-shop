@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useProductsInfiniteQuery } from "@/hooks/products/use-products-infinite-query";
 
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,6 @@ interface ProductsPageProps {
 }
 
 function ProductsPage(props: ProductsPageProps) {
-  const urlSearchParams = new URLSearchParams(useSearchParams());
   const searchParams = React.use(props.searchParams);
   const pathname = usePathname();
   const router = useRouter();
@@ -51,6 +50,7 @@ function ProductsPage(props: ProductsPageProps) {
       <div className="flex items-center justify-between gap-4 md:gap-8">
         <ProductSearchForm
           onSubmit={(value) => {
+            const urlSearchParams = new URLSearchParams();
             if (value.search.length <= 0) {
               urlSearchParams.delete("search");
             } else {
