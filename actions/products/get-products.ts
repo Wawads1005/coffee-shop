@@ -8,10 +8,30 @@ import {
   getProductsQuerySchema,
   GetProductsQuerySchema,
 } from "@/validators/products/get-products";
-import { and, asc, count, desc, eq, ilike, or, SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, or, sql, SQL } from "drizzle-orm";
 
 const DEFAULT_LIMIT = 20;
 const DEFAULT_OFFSET = 0;
+
+async function getAllDescendantIds(rootId: string): Promise<string[]> {
+  const ids = new Set([rootId]);
+  let lastSize = 0;
+
+  while (ids.size > lastSize) {
+    lastSize = ids.size;
+
+    const newOnes = await db
+      .select({ id: categoriesTable.id })
+      .from(categoriesTable)
+      .where(
+        sql`${categoriesTable.parentId} IN (${sql.join([...ids], sql`, `)})`,
+      );
+
+    newOnes.forEach((row) => ids.add(row.id));
+  }
+
+  return [...ids];
+}
 
 async function getProducts(query: GetProductsQuerySchema = {}) {
   const parsedQuery = await getProductsQuerySchema.safeParseAsync(query);
@@ -33,7 +53,23 @@ async function getProducts(query: GetProductsQuerySchema = {}) {
     const filters: SQL[] = [];
 
     if (filter.category) {
-      filters.push(eq(categoriesTable.slug, filter.category));
+      const [startCat] = await db
+        .select({ id: categoriesTable.id })
+        .from(categoriesTable)
+        .where(eq(categoriesTable.slug, filter.category))
+        .limit(1);
+
+      if (!startCat) {
+        return { products: [], total: 0, limit, offset, nextOffset: null };
+      }
+
+      const categoryIds = await getAllDescendantIds(startCat.id);
+
+      if (categoryIds.length > 0) {
+        filters.push(
+          sql`${productsTable.categoryId} IN (${sql.join(categoryIds, sql`, `)})`,
+        );
+      }
     }
 
     if (filter.search) {
