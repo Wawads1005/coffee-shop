@@ -1,4 +1,11 @@
-import { CircleCheckIcon, EditIcon, TrashIcon } from "lucide-react";
+"use client";
+
+import {
+  AlertCircleIcon,
+  CircleCheckIcon,
+  EditIcon,
+  TrashIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -30,12 +37,17 @@ import {
 } from "@/components/ui/dialog";
 import { CategoryForm } from "@/components/categories/category-form";
 import { Category } from "@/drizzle/schemas";
+import { slugify } from "@/lib/utils";
+import { useUpdateCategoryMutation } from "@/hooks/categories/use-update-category-mutation";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 interface CategoryCardProps {
   category: Category;
 }
 
 function CategoryCard({ category }: CategoryCardProps) {
+  const updateCategoryMutation = useUpdateCategoryMutation();
+
   return (
     <Card size="sm">
       <CardHeader>
@@ -60,7 +72,39 @@ function CategoryCard({ category }: CategoryCardProps) {
                   Update the input below, and click continue to update.
                 </DialogDescription>
               </DialogHeader>
-              <CategoryForm defaultValues={category} />
+              <CategoryForm
+                defaultValues={category}
+                onSubmit={(values, form) =>
+                  updateCategoryMutation.mutate(
+                    {
+                      params: { id: category.id },
+                      data: { ...values, slug: slugify(values.name) },
+                    },
+                    { onSuccess: () => form.reset() },
+                  )
+                }
+              >
+                {(updateCategoryMutation.isError ||
+                  updateCategoryMutation.isSuccess) && (
+                  <Alert
+                    variant={
+                      updateCategoryMutation.isError ? "destructive" : "success"
+                    }
+                  >
+                    <AlertCircleIcon />
+                    <AlertTitle>
+                      {updateCategoryMutation.isError
+                        ? "Uh-oh, something went wrong!"
+                        : "Yehey, congrats!"}
+                    </AlertTitle>
+                    <AlertDescription>
+                      {updateCategoryMutation.isError
+                        ? updateCategoryMutation.error.message
+                        : updateCategoryMutation.data.message}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </CategoryForm>
             </DialogContent>
           </Dialog>
           <AlertDialog>
