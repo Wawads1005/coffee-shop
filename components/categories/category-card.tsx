@@ -3,12 +3,9 @@
 import { slugify } from "@/lib/utils";
 import { Category } from "@/drizzle/schemas";
 import { useUpdateCategoryMutation } from "@/hooks/categories/use-update-category-mutation";
-import {
-  AlertCircleIcon,
-  CircleCheckIcon,
-  EditIcon,
-  TrashIcon,
-} from "lucide-react";
+import { useDeleteCategoryMutation } from "@/hooks/categories/use-delete-category-mutation";
+
+import { AlertCircleIcon, EditIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -47,6 +44,7 @@ interface CategoryCardProps {
 
 function CategoryCard({ category }: CategoryCardProps) {
   const updateCategoryMutation = useUpdateCategoryMutation();
+  const deleteCategoryMutation = useDeleteCategoryMutation();
 
   return (
     <Card size="sm">
@@ -128,17 +126,15 @@ function CategoryCard({ category }: CategoryCardProps) {
                 <AlertDialogCancel render={<Button>Cancel</Button>} />
                 <AlertDialogAction
                   variant="destructive"
-                  onClick={() => {
-                    toast(
-                      `You have successfully deleted ${category.name} category.`,
+                  onClick={() =>
+                    deleteCategoryMutation.mutate(
+                      { id: category.id },
                       {
-                        position: "bottom-right",
-                        icon: (
-                          <CircleCheckIcon className="size-5 stroke-emerald-500" />
-                        ),
+                        onSuccess: ({ message }) => toast.success(message),
+                        onError: (error) => toast.error(error.message),
                       },
-                    );
-                  }}
+                    )
+                  }
                 >
                   Continue
                 </AlertDialogAction>
