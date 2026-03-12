@@ -1,7 +1,9 @@
+"use client";
+
 import { Category } from "@/drizzle/schemas";
-import { GetCategoriesQuerySchema } from "@/validators/categories/get-categories";
 import { getCategories } from "@/actions/categories/get-categories";
 import { CategoryNavigationBranch } from "@/components/categories/category-navigation-branch";
+import { GetCategoriesQuerySchema } from "@/validators/categories/get-categories";
 
 interface NavigationData {
   id: string;
@@ -10,15 +12,15 @@ interface NavigationData {
 }
 
 interface Navigation<
-  TData extends NavigationData = any,
+  TData extends NavigationData = NavigationData,
   TQuery extends Record<string, unknown> = {},
 > {
   label: string;
   href: string;
-  children?: (data: TData) => React.ReactNode;
-  queryFn?: (query?: TQuery) => Promise<TData[]>;
-  queryKey?: string;
   query?: TQuery;
+  queryKey?: "categories";
+  queryFn?: (query?: TQuery) => Promise<TData[]>;
+  children?: (props: { data: TData }) => React.ReactNode;
 }
 
 const category: Navigation<Category, GetCategoriesQuerySchema> = {
@@ -26,17 +28,15 @@ const category: Navigation<Category, GetCategoriesQuerySchema> = {
   label: "Products",
   query: { filter: { parentId: null } },
   queryKey: "categories",
-  queryFn: async function (query) {
+  queryFn: async (query) => {
     const response = await getCategories(query);
 
     return response.categories;
   },
-  children: (category) => (
-    <CategoryNavigationBranch key={category.id} category={category} />
-  ),
+  children: (props) => CategoryNavigationBranch({ category: props.data }),
 };
 
-const navigations: Navigation[] = [
+const navigations: Navigation<any>[] = [
   { label: "Home", href: "/" },
   category,
   { label: "Contact", href: "/contact" },

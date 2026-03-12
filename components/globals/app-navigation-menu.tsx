@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -24,6 +26,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "lucide-react";
+import { queryKeys } from "@/lib/query-client";
 
 interface AppNavigationMenuProps {
   navigations: Navigation[];
@@ -87,11 +90,11 @@ function AppNavigationMenuList({
   navigation: Required<Navigation>;
 }) {
   const dataQuery = useQuery({
-    queryKey: [navigation.queryKey, navigation.query],
+    queryKey: queryKeys[navigation.queryKey].collections(navigation.query),
     queryFn: async () => await navigation.queryFn(navigation.query),
   });
 
-  const data = dataQuery.data ? dataQuery.data : [];
+  const collections = dataQuery.data ? dataQuery.data : [];
 
   return (
     <NavigationMenuItem>
@@ -101,10 +104,8 @@ function AppNavigationMenuList({
       <NavigationMenuContent>
         <NavigationMenu side="left">
           <NavigationMenuList className="flex-col">
-            {data.map((item) => {
-              const component = navigation.children(item);
-
-              return component;
+            {collections.map((entity) => {
+              return <navigation.children key={entity.id} data={entity} />;
             })}
           </NavigationMenuList>
         </NavigationMenu>

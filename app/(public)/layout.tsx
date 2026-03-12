@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { AppNavigationMenu } from "@/components/globals/app-navigation-menu";
 import { navigations } from "@/data/navigations";
