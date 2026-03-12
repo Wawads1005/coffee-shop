@@ -2,17 +2,30 @@
 
 import { categoriesTable } from "@/drizzle/schemas";
 import { db } from "@/lib/db";
-import { CreateCategoryDataSchema } from "@/validators/categories/create-category";
+import {
+  createCategoryDataSchema,
+  CreateCategoryDataSchema,
+} from "@/validators/categories/create-category";
 import { eq } from "drizzle-orm";
 
 class CreateCategoryError extends Error {}
 
 async function createCategory(data: CreateCategoryDataSchema) {
+  const parsedData = await createCategoryDataSchema.safeParseAsync(data);
+
+  if (!parsedData.success) {
+    throw new Error(
+      parsedData.error.issues[0]?.message || parsedData.error.message,
+    );
+  }
+
   try {
+    const { name, slug, parentId, description } = parsedData.data;
+
     const [foundCategory] = await db
       .select()
       .from(categoriesTable)
-      .where(eq(categoriesTable.name, data.name))
+      .where(eq(categoriesTable.name, name))
       .limit(1);
 
     if (foundCategory) {
@@ -23,7 +36,7 @@ async function createCategory(data: CreateCategoryDataSchema) {
 
     const [category] = await db
       .insert(categoriesTable)
-      .values([data])
+      .values([{ name, slug, parentId, description }])
       .returning();
 
     if (!category) {
