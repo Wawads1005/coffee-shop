@@ -31,7 +31,7 @@ function getQueryClient() {
 const queryKeys = {
   products: {
     base: ["products"],
-    collections: function (query?: GetProductsQuerySchema) {
+    collections: function (query: GetProductsQuerySchema = {}) {
       return [...this.base, query];
     },
     entity: function (params: GetProductParamsSchema) {
@@ -40,7 +40,7 @@ const queryKeys = {
   },
   categories: {
     base: ["categories"],
-    collections: function (query?: GetCategoriesQuerySchema) {
+    collections: function (query: GetCategoriesQuerySchema = {}) {
       return [...this.base, query];
     },
     entity: function (params: GetCategoryParamsSchema) {

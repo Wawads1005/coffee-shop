@@ -1,64 +1,68 @@
 "use client";
 
 import { createCategory } from "@/actions/categories/create-category";
-import { getCategories } from "@/actions/categories/get-categories";
+import { GetCategoriesResponse } from "@/actions/categories/types";
 import { Category } from "@/drizzle/schemas";
 import { queryKeys } from "@/lib/query-client";
-import { GetCategoriesQuerySchema } from "@/validators/categories/get-categories";
 import { useMutation } from "@tanstack/react-query";
 
-interface UseCreateCategoryMutationProps {
-  query?: GetCategoriesQuerySchema;
-}
-
-type GetCategoriesResponse = Awaited<ReturnType<typeof getCategories>>;
-
-function useCreateCategoryMutation(props?: UseCreateCategoryMutationProps) {
-  const categoriesQueryKey = queryKeys.categories.collections(props?.query);
-
+function useCreateCategoryMutation() {
   const createCategoryMutation = useMutation({
     mutationFn: createCategory,
     onMutate: async (variables, context) => {
-      await context.client.cancelQueries({
-        queryKey: categoriesQueryKey,
-      });
-
+      const categoriesQueryKey = queryKeys.categories.collections();
       const categoriesResponse =
         context.client.getQueryData<GetCategoriesResponse>(categoriesQueryKey);
 
       context.client.setQueryData<GetCategoriesResponse>(
         categoriesQueryKey,
-        (response) => {
-          if (!response) {
+        (categoriesResponse) => {
+          if (!categoriesResponse) {
             return;
           }
 
           const category: Category = {
             ...variables,
-            parentId: variables.parentId ? variables.parentId : null,
             id: crypto.randomUUID(),
+            parentId:
+              typeof variables.parentId !== "undefined"
+                ? variables.parentId
+                : null,
             createdAt: new Date(),
             updatedAt: new Date(),
           };
 
-          response.categories = [...response.categories, category];
+          categoriesResponse.categories = [
+            ...categoriesResponse.categories,
+            category,
+          ];
 
-          return response;
+          return categoriesResponse;
         },
       );
 
-      return { categoriesResponse };
+      return { categoriesResponse, categoriesQueryKey };
     },
     onError: (_error, _variables, result, context) => {
+      if (!result?.categoriesQueryKey) {
+        return;
+      }
+
       context.client.setQueryData<GetCategoriesResponse>(
-        categoriesQueryKey,
+        result.categoriesQueryKey,
         () => {
           return result?.categoriesResponse;
         },
       );
     },
-    onSuccess: async (_data, _variables, _result, context) => {
-      await context.client.invalidateQueries({ queryKey: categoriesQueryKey });
+    onSettled: async (_data, _error, _variables, result, context) => {
+      if (!result?.categoriesQueryKey) {
+        return;
+      }
+
+      await context.client.invalidateQueries({
+        queryKey: result.categoriesQueryKey,
+      });
     },
   });
 
