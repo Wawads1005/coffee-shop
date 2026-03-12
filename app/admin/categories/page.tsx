@@ -26,6 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  AlertCircleIcon,
   AlertTriangleIcon,
   PackageOpenIcon,
   PlusCircleIcon,
@@ -41,6 +42,8 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert";
+import { useCreateCategoryMutation } from "@/hooks/categories/use-create-category-mutation";
+import { slugify } from "@/lib/utils";
 
 interface CategoriesPageSearchParams {
   id?: string;
@@ -52,13 +55,15 @@ interface CategoriesPageProps {
 
 function CategoriesPage({ ...props }: CategoriesPageProps) {
   const router = useRouter();
-  const categoriesQuery = useCategoriesQuery({ filter: { parentId: null } });
-
   const searchParams = React.use(props.searchParams);
+
+  const categoriesQuery = useCategoriesQuery({ filter: { parentId: null } });
   const categories = React.useMemo(
     () => (categoriesQuery.data ? categoriesQuery.data.categories : []),
     [categoriesQuery.data],
   );
+
+  const createCategoryMutation = useCreateCategoryMutation();
 
   return (
     <div className="container mx-auto w-full max-w-360 space-y-4 px-4 py-4 sm:px-8 md:space-y-8 md:px-16 md:py-8">
@@ -97,7 +102,37 @@ function CategoriesPage({ ...props }: CategoriesPageProps) {
                     category.
                   </DialogDescription>
                 </DialogHeader>
-                <CategoryForm />
+                <CategoryForm
+                  onSubmit={(values, form) =>
+                    createCategoryMutation.mutate(
+                      { ...values, slug: slugify(values.name) },
+                      { onSuccess: () => form.reset() },
+                    )
+                  }
+                >
+                  {(createCategoryMutation.isError ||
+                    createCategoryMutation.isSuccess) && (
+                    <Alert
+                      variant={
+                        createCategoryMutation.isError
+                          ? "destructive"
+                          : "success"
+                      }
+                    >
+                      <AlertCircleIcon />
+                      <AlertTitle>
+                        {createCategoryMutation.isError
+                          ? "Uh-oh, something went wrong!"
+                          : "Yehey, congrats!"}
+                      </AlertTitle>
+                      <AlertDescription>
+                        {createCategoryMutation.isError
+                          ? createCategoryMutation.error.message
+                          : createCategoryMutation.data.message}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </CategoryForm>
               </DialogContent>
             </Dialog>
           </div>

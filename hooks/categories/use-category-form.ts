@@ -20,6 +20,11 @@ function useCategoryForm({ defaultValues }: UseCategoryFormOptions) {
     defaultValues: {
       name: defaultValues ? defaultValues.name : "",
       description: defaultValues ? defaultValues.description : "",
+      parentId: defaultValues
+        ? defaultValues.parentId
+          ? defaultValues.parentId
+          : null
+        : null,
     },
   });
 

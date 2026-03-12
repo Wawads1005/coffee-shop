@@ -10,30 +10,52 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
 
 interface CategoryFormProps extends Omit<
   React.ComponentProps<"form">,
   "onSubmit"
 > {
   defaultValues?: CategoryFormSchema;
-  onSubmit?: (values: CategoryFormSchema) => void;
+  onSubmit?: (
+    values: CategoryFormSchema,
+    form: ReturnType<typeof useCategoryForm>,
+  ) => void;
 }
 
 function CategoryForm({
   defaultValues,
   onSubmit,
+  onReset,
   children,
   className,
   ...props
 }: CategoryFormProps) {
   const categoryForm = useCategoryForm({ defaultValues });
+  const categoriesQuery = useCategoriesQuery();
+  const categories = categoriesQuery.data
+    ? categoriesQuery.data.categories
+    : [];
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
 
-        onSubmit?.(categoryForm.state.values);
+        onSubmit?.(categoryForm.state.values, categoryForm);
+      }}
+      onReset={(e) => {
+        categoryForm.reset();
+        onReset?.(e);
       }}
       className={cn("grid gap-2", className)}
       {...props}
@@ -56,6 +78,45 @@ function CategoryForm({
                   onBlur={() => field.handleBlur()}
                   placeholder="Hot Coffee"
                 />
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            );
+          }}
+        />
+        <categoryForm.Field
+          name="parentId"
+          children={(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid;
+            const parents = categories.map((category) => ({
+              value: category.id,
+              label: category.name,
+            }));
+
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel>Parent</FieldLabel>
+                <Select
+                  items={parents}
+                  value={field.state.value}
+                  onValueChange={field.handleChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="(Optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Categories</SelectLabel>
+                      {parents.map((parent) => {
+                        return (
+                          <SelectItem key={parent.value} value={parent.value}>
+                            {parent.label}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
             );
