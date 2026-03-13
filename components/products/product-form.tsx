@@ -132,7 +132,6 @@ function ProductForm({
                       name={field.name}
                       id={field.name}
                       type="number"
-                      min={0}
                       value={field.state.value / 100}
                       onChange={(e) => {
                         const priceCents = parseFloat(e.currentTarget.value);
