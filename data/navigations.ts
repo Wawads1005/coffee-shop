@@ -12,8 +12,8 @@ interface NavigationData {
 }
 
 interface Navigation<
-  TData extends NavigationData = NavigationData,
-  TQuery extends Record<string, unknown> = {},
+  TData extends NavigationData | null = null,
+  TQuery extends Record<string, unknown> | null = null,
 > {
   label: string;
   href: string;
@@ -22,6 +22,11 @@ interface Navigation<
   queryFn?: (query?: TQuery) => Promise<TData[]>;
   children?: (props: { data: TData }) => React.ReactNode;
 }
+
+const home: Navigation = {
+  href: "/",
+  label: "Home",
+};
 
 const category: Navigation<Category, GetCategoriesQuerySchema> = {
   href: "/products",
@@ -36,11 +41,9 @@ const category: Navigation<Category, GetCategoriesQuerySchema> = {
   children: (props) => CategoryNavigationBranch({ category: props.data }),
 };
 
-const navigations: Navigation<any>[] = [
-  { label: "Home", href: "/" },
-  category,
-  { label: "Contact", href: "/contact" },
-];
+const contact: Navigation = { label: "Contact", href: "/contact" };
+
+const navigations: Navigation<any, any>[] = [home, category, contact];
 
 export type { NavigationData, Navigation };
 export { navigations };
