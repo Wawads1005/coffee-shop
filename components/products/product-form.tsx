@@ -207,12 +207,20 @@ function ProductForm({
                 <FieldLabel htmlFor={field.name} className="capitalize">
                   {field.name}
                 </FieldLabel>
-                <Input type="file" />
+                <Input
+                  type="file"
+                  onChange={(e) =>
+                    e.currentTarget.files &&
+                    e.currentTarget.files[0] &&
+                    field.handleChange(e.currentTarget.files[0].name)
+                  }
+                />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
             );
           }}
         />
+        <Field>{children}</Field>
         <productForm.Subscribe
           selector={({ canSubmit }) => ({ canSubmit })}
           children={({ canSubmit }) => {

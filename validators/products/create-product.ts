@@ -1,10 +1,11 @@
 import z from "zod";
 
-type ProductFormSchema = z.infer<typeof productFormSchema>;
+type CreateProductDataSchema = z.infer<typeof createProductDataSchema>;
 
-const productFormSchema = z.object({
+const createProductDataSchema = z.object({
   categoryId: z.string().min(1, { error: "Product category is requried" }),
   name: z.string().min(1, { error: "Product name is required." }),
+  slug: z.string().min(1, { error: "Product slug is required." }),
   description: z.string().min(1, { error: "Product description is required." }),
   priceCents: z
     .number()
@@ -13,5 +14,5 @@ const productFormSchema = z.object({
   image: z.string().min(1, { error: "Product image is required." }),
 });
 
-export type { ProductFormSchema };
-export { productFormSchema };
+export type { CreateProductDataSchema };
+export { createProductDataSchema };

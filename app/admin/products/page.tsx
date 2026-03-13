@@ -23,7 +23,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ProductForm } from "@/components/products/product-form";
-import { PlusCircleIcon } from "lucide-react";
+import { CircleAlertIcon, CircleCheckIcon, PlusCircleIcon } from "lucide-react";
+import { useCreateProductMutation } from "@/hooks/products/use-create-product-mutation";
+import { slugify } from "@/lib/utils";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface ProductsPageSearchParams {
   search?: string;
@@ -90,6 +93,7 @@ function ProductsPage({ ...props }: ProductsPageProps) {
     },
     orderBy: productsOrderBy,
   });
+  const createProductMutation = useCreateProductMutation();
 
   const products = React.useMemo(
     () => (productsQuery.data ? productsQuery.data.products : []),
@@ -147,7 +151,41 @@ function ProductsPage({ ...props }: ProductsPageProps) {
                 </SheetDescription>
               </SheetHeader>
               <div className="px-4">
-                <ProductForm />
+                <ProductForm
+                  onSubmit={(values) => {
+                    createProductMutation.mutate({
+                      ...values,
+                      slug: slugify(values.name),
+                    });
+                  }}
+                >
+                  {(createProductMutation.isError ||
+                    createProductMutation.isSuccess) && (
+                    <Alert
+                      variant={
+                        createProductMutation.isError
+                          ? "destructive"
+                          : "success"
+                      }
+                    >
+                      {createProductMutation.isError ? (
+                        <CircleAlertIcon />
+                      ) : (
+                        <CircleCheckIcon />
+                      )}
+                      <AlertTitle>
+                        {createProductMutation.isError
+                          ? "Uh-oh, something went wrong!"
+                          : "Yehey, congrats!"}
+                      </AlertTitle>
+                      <AlertDescription>
+                        {createProductMutation.isError
+                          ? createProductMutation.error.message
+                          : createProductMutation.data.message}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </ProductForm>
               </div>
             </SheetContent>
           </Sheet>
