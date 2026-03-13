@@ -122,7 +122,7 @@ function ProductForm({
               return (
                 <Field>
                   <FieldLabel htmlFor={field.name} className="capitalize">
-                    {field.name}
+                    Price
                   </FieldLabel>
                   <InputGroup>
                     <InputGroupAddon>
