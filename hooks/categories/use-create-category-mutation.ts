@@ -11,6 +11,9 @@ function useCreateCategoryMutation() {
     mutationFn: createCategory,
     onMutate: async (variables, context) => {
       const categoriesQueryKey = queryKeys.categories.collections();
+
+      await context.client.cancelQueries({ queryKey: categoriesQueryKey });
+
       const categoriesResponse =
         context.client.getQueryData<GetCategoriesResponse>(categoriesQueryKey);
 
@@ -44,25 +47,21 @@ function useCreateCategoryMutation() {
       return { categoriesResponse, categoriesQueryKey };
     },
     onError: (_error, _variables, result, context) => {
-      if (!result?.categoriesQueryKey) {
-        return;
+      if (result?.categoriesQueryKey) {
+        context.client.setQueryData<GetCategoriesResponse>(
+          result.categoriesQueryKey,
+          () => {
+            return result?.categoriesResponse;
+          },
+        );
       }
-
-      context.client.setQueryData<GetCategoriesResponse>(
-        result.categoriesQueryKey,
-        () => {
-          return result?.categoriesResponse;
-        },
-      );
     },
     onSettled: async (_data, _error, _variables, result, context) => {
-      if (!result?.categoriesQueryKey) {
-        return;
+      if (result?.categoriesQueryKey) {
+        await context.client.invalidateQueries({
+          queryKey: result.categoriesQueryKey,
+        });
       }
-
-      await context.client.invalidateQueries({
-        queryKey: result.categoriesQueryKey,
-      });
     },
   });
 
