@@ -165,7 +165,16 @@ function ProductForm({
                   <FieldLabel htmlFor={field.name} className="capitalize">
                     Category
                   </FieldLabel>
-                  <Select items={items} defaultValue={field.state.value}>
+                  <Select
+                    items={items}
+                    value={field.state.value}
+                    onValueChange={(value) => {
+                      value &&
+                        field.handleChange(
+                          field.state.value === value ? "" : value,
+                        );
+                    }}
+                  >
                     <SelectTrigger id={field.name} name={field.name}>
                       <SelectValue placeholder="Select a category..." />
                     </SelectTrigger>
