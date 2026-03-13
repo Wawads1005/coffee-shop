@@ -10,8 +10,10 @@ interface AppQueryClientProviderProps {
 }
 
 function AppQueryClientProvider({ children }: AppQueryClientProviderProps) {
+  const [queryClient] = React.useState(() => getQueryClient());
+
   return (
-    <QueryClientProvider client={getQueryClient()}>
+    <QueryClientProvider client={queryClient}>
       {children}
       <ReactQueryDevtools />
     </QueryClientProvider>
