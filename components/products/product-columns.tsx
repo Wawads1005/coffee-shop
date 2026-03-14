@@ -116,7 +116,7 @@ interface ProductRowPriceProps extends CellContext<Product, number> {}
 
 function ProductRowPrice({ getValue }: ProductRowPriceProps) {
   const priceCents = getValue();
-  const price = Math.floor(priceCents / 100);
+  const price = priceCents / 100;
 
   return <span>&#8369;{price.toFixed(2)}</span>;
 }
