@@ -10,18 +10,19 @@ interface UseProductFormProps {
   defaultValues?: ProductFormSchema;
 }
 
-function useProductForm({ defaultValues }: UseProductFormProps) {
+function useProductForm(props?: UseProductFormProps) {
   const productForm = useForm({
     validators: {
       onChange: productFormSchema,
+      onBlur: productFormSchema,
       onSubmit: productFormSchema,
     },
     defaultValues: {
-      categoryId: defaultValues ? defaultValues.categoryId : "",
-      name: defaultValues ? defaultValues.name : "",
-      description: defaultValues ? defaultValues.description : "",
-      priceCents: defaultValues ? defaultValues.priceCents : 0,
-      image: defaultValues ? defaultValues.image : "",
+      categoryId: props?.defaultValues ? props?.defaultValues.categoryId : "",
+      name: props?.defaultValues ? props?.defaultValues.name : "",
+      description: props?.defaultValues ? props?.defaultValues.description : "",
+      priceCents: props?.defaultValues ? props?.defaultValues.priceCents : 0,
+      image: props?.defaultValues ? props?.defaultValues.image : "",
     },
   });
 

@@ -36,7 +36,10 @@ interface ProductFormProps extends Omit<
   "onSubmit"
 > {
   defaultValues?: ProductFormSchema;
-  onSubmit?: (values: ProductFormSchema) => void;
+  onSubmit?: (
+    values: ProductFormSchema,
+    form: ReturnType<typeof useProductForm>,
+  ) => void;
 }
 
 function ProductForm({
@@ -46,18 +49,18 @@ function ProductForm({
   className,
   ...props
 }: ProductFormProps) {
+  const productForm = useProductForm({ defaultValues });
   const categoriesQuery = useCategoriesQuery();
   const categories = React.useMemo(
     () => (categoriesQuery.data ? categoriesQuery.data.categories : []),
     [categoriesQuery.data],
   );
-  const productForm = useProductForm({ defaultValues });
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit?.(productForm.state.values);
+        onSubmit?.(productForm.state.values, productForm);
       }}
       className={cn("grid gap-2", className)}
       {...props}

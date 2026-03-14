@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ColumnDef } from "@tanstack/react-table";
+import { CellContext, ColumnDef, HeaderContext } from "@tanstack/react-table";
 import { Product } from "@/drizzle/schemas";
 import { useCategoryQuery } from "@/hooks/categories/use-category-query";
 
@@ -59,199 +59,211 @@ const productColumns: ColumnDef<Product>[] = [
     id: "Category",
     header: "Category",
     accessorKey: "categoryId",
-    cell: (info) => {
-      const categoryId = info.getValue<string>();
-      const categoryQuery = useCategoryQuery({ id: categoryId });
-      const category = categoryQuery.data ? categoryQuery.data.category : null;
-
-      if (!category) {
-        return null;
-      }
-
-      return <span>{category.name}</span>;
-    },
+    cell: ProductRowCategory,
   },
   {
     id: "price",
     accessorKey: "priceCents",
     header: DataTableColumnSorter,
-    cell: (info) => {
-      const priceCents = Math.floor(info.getValue<number>() / 100);
-
-      return <span>&#8369;{priceCents.toFixed(2)}</span>;
-    },
+    cell: ProductRowPrice,
     enableGlobalFilter: false,
   },
   {
     accessorKey: "createdAt",
     header: DataTableColumnSorter,
-    cell: (info) => {
-      const createdAt = info.getValue<Date>();
-      const dateFormatter = new Intl.DateTimeFormat("en");
-
-      return <span>{dateFormatter.format(createdAt)}</span>;
-    },
+    cell: ProductRowDate,
     enableGlobalFilter: false,
   },
   {
     accessorKey: "updatedAt",
     header: DataTableColumnSorter,
-    cell: (info) => {
-      const createdAt = info.getValue<Date>();
-      const dateFormatter = new Intl.DateTimeFormat("en");
-
-      return <span>{dateFormatter.format(createdAt)}</span>;
-    },
+    cell: ProductRowDate,
     enableGlobalFilter: false,
   },
   {
     id: "actions",
-    header: (info) => {
-      const [isAlertOpen, setIsAlertOpen] = React.useState(false);
-      const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-      const { rowSelection } = info.table.getState();
-
-      const selectedRowIds = Object.keys(rowSelection);
-
-      return (
-        <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-          <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-            <DropdownMenuTrigger
-              hidden={selectedRowIds.length <= 0}
-              render={
-                <Button variant="ghost">
-                  <EllipsisIcon />
-                </Button>
-              }
-            />
-            <DropdownMenuContent>
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() => {
-                    setIsDropdownOpen(false);
-                    setIsAlertOpen(true);
-                  }}
-                >
-                  <TrashIcon />
-                  <span>Delete</span>
-                  <Badge variant="destructive" className="ml-auto">
-                    {selectedRowIds.length}
-                  </Badge>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. Clicking continue will delete all
-                selected products.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction variant="destructive">
-                Continue
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      );
-    },
-    cell: (info) => {
-      const [isAlertOpen, setIsAlertOpen] = React.useState(false);
-      const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-      const [isSheetOpen, setIsSheetOpen] = React.useState(false);
-
-      return (
-        <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="ghost">
-                <EllipsisIcon />
-              </Button>
-            }
-          />
-          <DropdownMenuContent>
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <Sheet
-                open={isSheetOpen}
-                onOpenChange={setIsSheetOpen}
-                onOpenChangeComplete={(open) =>
-                  !open && setIsDropdownOpen(false)
-                }
-              >
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.preventBaseUIHandler();
-                    setIsSheetOpen(true);
-                  }}
-                >
-                  <EditIcon />
-                  <span>Edit</span>
-                </DropdownMenuItem>
-                <SheetContent>
-                  <SheetHeader>
-                    <SheetTitle>Create a new product</SheetTitle>
-                    <SheetDescription>
-                      Fill up the form below, and click continue to create a new
-                      product.
-                    </SheetDescription>
-                  </SheetHeader>
-                  <div className="px-4">
-                    <ProductForm defaultValues={info.row.original} />
-                  </div>
-                </SheetContent>
-              </Sheet>
-              <AlertDialog
-                open={isAlertOpen}
-                onOpenChange={setIsAlertOpen}
-                onOpenChangeComplete={(open) =>
-                  !open && setIsDropdownOpen(false)
-                }
-              >
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={(e) => {
-                    e.preventBaseUIHandler();
-                    setIsAlertOpen(true);
-                  }}
-                >
-                  <TrashIcon />
-                  <span>Delete</span>
-                </DropdownMenuItem>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. Clicking continue will
-                      delete selected product.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction variant="destructive">
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    header: ProductColumnAction,
+    cell: ProductRowAction,
     enableHiding: false,
     enableGlobalFilter: false,
   },
 ];
+
+interface ProductRowCategoryProps extends CellContext<Product, string> {}
+
+function ProductRowCategory({ getValue }: ProductRowCategoryProps) {
+  const categoryId = getValue();
+  const categoryQuery = useCategoryQuery({ id: categoryId });
+  const category = categoryQuery.data ? categoryQuery.data.category : null;
+
+  if (!category) {
+    return null;
+  }
+
+  return <span>{category.name}</span>;
+}
+
+interface ProductRowPriceProps extends CellContext<Product, number> {}
+
+function ProductRowPrice({ getValue }: ProductRowPriceProps) {
+  const priceCents = getValue();
+  const price = Math.floor(priceCents / 100);
+
+  return <span>&#8369;{price.toFixed(2)}</span>;
+}
+
+interface ProductRowDateProps extends CellContext<Product, Date> {}
+
+function ProductRowDate({ getValue }: ProductRowDateProps) {
+  const date = getValue();
+  const dateFormatter = new Intl.DateTimeFormat("en");
+
+  return <span>{dateFormatter.format(date)}</span>;
+}
+
+interface ProductColumnActionProps extends HeaderContext<Product, unknown> {}
+
+function ProductColumnAction({ table }: ProductColumnActionProps) {
+  const [isAlertOpen, setIsAlertOpen] = React.useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const { rowSelection } = table.getState();
+
+  const selectedRowIds = Object.keys(rowSelection);
+
+  return (
+    <React.Fragment>
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+        <DropdownMenuTrigger
+          hidden={selectedRowIds.length <= 0}
+          render={
+            <Button variant="ghost">
+              <EllipsisIcon />
+            </Button>
+          }
+        />
+        <DropdownMenuContent>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => {
+                setIsDropdownOpen(false);
+                setIsAlertOpen(true);
+              }}
+            >
+              <TrashIcon />
+              <span>Delete</span>
+              <Badge variant="destructive" className="ml-auto">
+                {selectedRowIds.length}
+              </Badge>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. Clicking continue will delete all
+              selected products.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive">
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </React.Fragment>
+  );
+}
+
+interface ProductRowActionProps extends CellContext<Product, unknown> {}
+
+function ProductRowAction({ row }: ProductRowActionProps) {
+  const [isAlertOpen, setIsAlertOpen] = React.useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [isSheetOpen, setIsSheetOpen] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+        <DropdownMenuTrigger
+          render={
+            <Button variant="ghost">
+              <EllipsisIcon />
+            </Button>
+          }
+        />
+        <DropdownMenuContent>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onClick={(event) => {
+                event.preventBaseUIHandler();
+                setIsDropdownOpen(false);
+                setIsSheetOpen(true);
+              }}
+            >
+              <EditIcon />
+              <span>Edit</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={(event) => {
+                event.preventBaseUIHandler();
+                setIsDropdownOpen(false);
+                setIsAlertOpen(true);
+              }}
+            >
+              <TrashIcon />
+              <span>Delete</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Edit product</SheetTitle>
+            <SheetDescription>
+              Update the product details below.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="px-4">
+            <ProductForm defaultValues={row.original} />
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. Clicking continue will delete the
+              selected product.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive">
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </React.Fragment>
+  );
+}
 
 export { productColumns };
