@@ -5,7 +5,13 @@ import { CellContext, ColumnDef, HeaderContext } from "@tanstack/react-table";
 import { Product } from "@/drizzle/schemas";
 import { useCategoryQuery } from "@/hooks/categories/use-category-query";
 
-import { EditIcon, EllipsisIcon, TrashIcon } from "lucide-react";
+import {
+  CircleAlertIcon,
+  CircleCheckIcon,
+  EditIcon,
+  EllipsisIcon,
+  TrashIcon,
+} from "lucide-react";
 import {
   DataTableColumnSelector,
   DataTableColumnSorter,
@@ -40,6 +46,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { ProductForm } from "@/components/products/product-form";
+import { useUpdateProductMutation } from "@/hooks/products/use-update-product-mutation";
+import { slugify } from "@/lib/utils";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 const productColumns: ColumnDef<Product>[] = [
   {
@@ -190,6 +199,8 @@ function ProductRowAction({ row }: ProductRowActionProps) {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
+  const updateProductMutation = useUpdateProductMutation();
+
   return (
     <React.Fragment>
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
@@ -240,7 +251,43 @@ function ProductRowAction({ row }: ProductRowActionProps) {
             </SheetDescription>
           </SheetHeader>
           <div className="px-4">
-            <ProductForm defaultValues={row.original} />
+            <ProductForm
+              onSubmit={(values, form) => {
+                updateProductMutation.mutate(
+                  {
+                    params: { id: row.original.id },
+                    data: { ...values, slug: slugify(values.name) },
+                  },
+                  { onSuccess: () => form.reset() },
+                );
+              }}
+              defaultValues={row.original}
+            >
+              {(updateProductMutation.isError ||
+                updateProductMutation.isSuccess) && (
+                <Alert
+                  variant={
+                    updateProductMutation.isError ? "destructive" : "success"
+                  }
+                >
+                  {updateProductMutation.isError ? (
+                    <CircleAlertIcon />
+                  ) : (
+                    <CircleCheckIcon />
+                  )}
+                  <AlertTitle>
+                    {updateProductMutation.isError
+                      ? "Uh-oh, something went wrong!"
+                      : "Yehey, congrats"}
+                  </AlertTitle>
+                  <AlertDescription>
+                    {updateProductMutation.isError
+                      ? updateProductMutation.error.message
+                      : updateProductMutation.data.message}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </ProductForm>
           </div>
         </SheetContent>
       </Sheet>
