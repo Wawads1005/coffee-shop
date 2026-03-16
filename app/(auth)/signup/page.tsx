@@ -1,6 +1,7 @@
 "use client";
 
 import { SignUpForm } from "@/components/auth/signup-form";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -9,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useSignUpMutation } from "@/hooks/auth/use-signup-mutation";
+import { CircleAlertIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -36,7 +38,17 @@ function SignUpPage() {
                 { onSuccess: () => router.replace("/") },
               )
             }
-          />
+          >
+            {signUpMutation.isError && (
+              <Alert variant="destructive">
+                <CircleAlertIcon />
+                <AlertTitle>Uh-oh, something went wrong!</AlertTitle>
+                <AlertDescription>
+                  {signUpMutation.error.message}
+                </AlertDescription>
+              </Alert>
+            )}
+          </SignUpForm>
         </CardContent>
       </Card>
     </div>

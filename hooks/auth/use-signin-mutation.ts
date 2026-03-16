@@ -6,8 +6,15 @@ import { useMutation } from "@tanstack/react-query";
 
 function useSignInMutation() {
   const signInMutation = useMutation({
-    mutationFn: async (data: SignInDataSchema) =>
-      await authClient.signIn.email(data),
+    mutationFn: async (data: SignInDataSchema) => {
+      const response = await authClient.signIn.email(data);
+
+      if (!response.data) {
+        throw new Error(response.error.message);
+      }
+
+      return response;
+    },
   });
 
   return signInMutation;

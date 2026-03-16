@@ -1,6 +1,7 @@
 "use client";
 
 import { SignInForm } from "@/components/auth/signin-form";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -9,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useSignInMutation } from "@/hooks/auth/use-signin-mutation";
+import { AlertCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -36,7 +38,17 @@ function SignInPage() {
                 { onSuccess: () => router.replace("/") },
               )
             }
-          />
+          >
+            {signInMutation.isError && (
+              <Alert variant="destructive">
+                <AlertCircleIcon />
+                <AlertTitle>Uh-oh, something went wrong!</AlertTitle>
+                <AlertDescription>
+                  {signInMutation.error.message}
+                </AlertDescription>
+              </Alert>
+            )}
+          </SignInForm>
         </CardContent>
       </Card>
     </div>
