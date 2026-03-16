@@ -16,12 +16,26 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { HomeIcon, PackageIcon, TagsIcon } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { headers as nextHeaders } from "next/headers";
+import { redirect } from "next/navigation";
 
 interface AdminLayoutProps {
   children?: React.ReactNode;
 }
 
-function AdminLayout({ children }: AdminLayoutProps) {
+async function AdminLayout({ children }: AdminLayoutProps) {
+  const headers = await nextHeaders();
+  const sessionResponse = await auth.api.getSession({ headers });
+
+  if (!sessionResponse) {
+    redirect("/signin");
+  }
+
+  if (sessionResponse.user.role !== "admin") {
+    redirect("/");
+  }
+
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
