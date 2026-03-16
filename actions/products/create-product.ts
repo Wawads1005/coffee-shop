@@ -1,15 +1,28 @@
 "use server";
 
 import { productsTable } from "@/drizzle/schemas";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   createProductDataSchema,
   CreateProductDataSchema,
 } from "@/validators/products/create-product";
+import { headers as nextHeaders } from "next/headers";
 
 class CreateProductError extends Error {}
 
 async function createProduct(data: CreateProductDataSchema) {
+  const headers = await nextHeaders();
+
+  const permissionResponse = await auth.api.userHasPermission({
+    body: { permissions: { categories: ["create"] } },
+    headers,
+  });
+
+  if (!permissionResponse.success) {
+    throw new Error("Unauthorized.");
+  }
+
   const parsedData = await createProductDataSchema.safeParseAsync(data);
 
   if (!parsedData.success) {

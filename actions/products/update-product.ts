@@ -1,6 +1,7 @@
 "use server";
 
 import { productsTable } from "@/drizzle/schemas";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   updateProductDataSchema,
@@ -9,6 +10,7 @@ import {
   UpdateProductParamsSchema,
 } from "@/validators/products/update-product";
 import { eq } from "drizzle-orm";
+import { headers as nextHeaders } from "next/headers";
 
 class UpdateProductError extends Error {}
 
@@ -16,6 +18,17 @@ async function updateProduct(
   params: UpdateProductParamsSchema,
   data: UpdateProductDataSchema,
 ) {
+  const headers = await nextHeaders();
+
+  const permissionResponse = await auth.api.userHasPermission({
+    body: { permissions: { categories: ["update"] } },
+    headers,
+  });
+
+  if (!permissionResponse.success) {
+    throw new Error("Unauthorized.");
+  }
+
   const parsedParams = await updateProductParamsSchema.safeParseAsync(params);
   const parsedData = await updateProductDataSchema.safeParseAsync(data);
 

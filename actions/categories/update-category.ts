@@ -1,6 +1,7 @@
 "use server";
 
 import { categoriesTable } from "@/drizzle/schemas";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   updateCategoryDataSchema,
@@ -9,6 +10,7 @@ import {
   UpdateCategoryParamsSchema,
 } from "@/validators/categories/update-category";
 import { and, eq, SQL } from "drizzle-orm";
+import { headers as nextHeaders } from "next/headers";
 
 class UpdateCategoryError extends Error {}
 
@@ -16,6 +18,17 @@ async function updateCategory(
   params: UpdateCategoryParamsSchema,
   data: UpdateCategoryDataSchema,
 ) {
+  const headers = await nextHeaders();
+
+  const permissionResponse = await auth.api.userHasPermission({
+    body: { permissions: { categories: ["update"] } },
+    headers,
+  });
+
+  if (!permissionResponse.success) {
+    throw new Error("Unauthorized.");
+  }
+
   const parsedParams = await updateCategoryParamsSchema.safeParseAsync(params);
 
   if (!parsedParams.success) {

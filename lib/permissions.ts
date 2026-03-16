@@ -24,4 +24,4 @@ const adminRole = accessControl.newRole({
   ...defaultRoles.admin.statements,
 });
 
-export { accessControl, userRole, adminRole };
+export { accessControl, userRole, adminRole, statements };

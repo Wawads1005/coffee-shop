@@ -1,16 +1,28 @@
 "use server";
 
 import { categoriesTable } from "@/drizzle/schemas";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   deleteCategoryParamsSchema,
   DeleteCategoryParamsSchema,
 } from "@/validators/categories/delete-category";
 import { and, eq, SQL } from "drizzle-orm";
+import { headers as nextHeaders } from "next/headers";
 
 class DeleteCategoryError extends Error {}
 
 async function deleteCategory(params: DeleteCategoryParamsSchema) {
+  const headers = await nextHeaders();
+
+  const permissionResponse = await auth.api.userHasPermission({
+    body: { permissions: { categories: ["delete"] } },
+    headers,
+  });
+
+  if (!permissionResponse.success) {
+    throw new Error("Unauthorized.");
+  }
   const parsedParams = await deleteCategoryParamsSchema.safeParseAsync(params);
 
   if (!parsedParams.success) {
