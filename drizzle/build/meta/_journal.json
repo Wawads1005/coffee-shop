@@ -8,6 +8,13 @@
       "when": 1773128826925,
       "tag": "0000_far_dust",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773640472022,
+      "tag": "0001_wealthy_eddie_brock",
+      "breakpoints": true
     }
   ]
 }
