@@ -8,9 +8,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useSignInMutation } from "@/hooks/auth/use-signin-mutation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 function SignInPage() {
+  const router = useRouter();
+  const signInMutation = useSignInMutation();
+
   return (
     <div className="flex h-full items-center justify-center">
       <Card className="w-full max-w-96">
@@ -24,7 +29,14 @@ function SignInPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SignInForm />
+          <SignInForm
+            onSubmit={(values) =>
+              signInMutation.mutate(
+                { ...values, callbackURL: "/" },
+                { onSuccess: () => router.replace("/") },
+              )
+            }
+          />
         </CardContent>
       </Card>
     </div>
