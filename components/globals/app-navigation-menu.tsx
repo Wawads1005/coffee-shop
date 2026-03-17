@@ -24,19 +24,38 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { MenuIcon } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  LogInIcon,
+  LogOutIcon,
+  MenuIcon,
+  SettingsIcon,
+  UserIcon,
+} from "lucide-react";
 import { queryKeys } from "@/lib/query-client";
+import { useSessionQuery } from "@/hooks/auth/use-session-query";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 interface AppNavigationMenuProps {
   navigations: Navigation[];
 }
 
 function AppNavigationMenu({ navigations }: AppNavigationMenuProps) {
+  const sessionQuery = useSessionQuery();
+
   return (
     <React.Fragment>
       <NavigationMenu className="hidden md:flex">
-        <NavigationMenuList>
+        <NavigationMenuList className="gap-1">
           {navigations.map((navigation) => {
             return (
               <AppNavigationMenuItem
@@ -45,6 +64,51 @@ function AppNavigationMenu({ navigations }: AppNavigationMenuProps) {
               />
             );
           })}
+          {sessionQuery.data ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Avatar>
+                  <AvatarFallback />
+                  {sessionQuery.data.user.image && (
+                    <AvatarImage src={sessionQuery.data.user.image} />
+                  )}
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-auto">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>
+                    {sessionQuery.data.user.name ||
+                      sessionQuery.data.user.email}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <UserIcon />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <SettingsIcon />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <LogOutIcon />
+                    <span>Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                className={cn(buttonVariants({ variant: "default" }))}
+                render={
+                  <Link href="/signin">
+                    <LogInIcon />
+                    <span>Sign In</span>
+                  </Link>
+                }
+              />
+            </NavigationMenuItem>
+          )}
         </NavigationMenuList>
       </NavigationMenu>
       <Sheet>
@@ -70,14 +134,16 @@ function AppNavigationMenu({ navigations }: AppNavigationMenuProps) {
 function AppNavigationMenuItem({ navigation }: { navigation: Navigation }) {
   if (navigation.queryFn && navigation.children && navigation.query) {
     return (
-      <AppNavigationMenuList navigation={navigation as Required<Navigation>} />
+      <AppNavigationMenuList
+        navigation={navigation as Required<Navigation<any, any>>}
+      />
     );
   }
 
   return (
     <NavigationMenuItem>
       <NavigationMenuLink
-        className={cn(navigationMenuTriggerStyle())}
+        className={cn(navigationMenuTriggerStyle(), navigation.className)}
         render={<Link href={navigation.href}>{navigation.label}</Link>}
       />
     </NavigationMenuItem>
@@ -87,7 +153,7 @@ function AppNavigationMenuItem({ navigation }: { navigation: Navigation }) {
 function AppNavigationMenuList({
   navigation,
 }: {
-  navigation: Required<Navigation>;
+  navigation: Required<Navigation<any, any>>;
 }) {
   const dataQuery = useQuery({
     queryKey: queryKeys[navigation.queryKey].collections(navigation.query),

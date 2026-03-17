@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { Category } from "@/drizzle/schemas";
 import { getCategories } from "@/actions/categories/get-categories";
 import { CategoryNavigationBranch } from "@/components/categories/category-navigation-branch";
@@ -17,6 +18,7 @@ interface Navigation<
 > {
   label: string;
   href: string;
+  className?: string;
   query?: TQuery;
   queryKey?: "categories";
   queryFn?: (query?: TQuery) => Promise<TData[]>;
@@ -27,6 +29,8 @@ const home: Navigation = {
   href: "/",
   label: "Home",
 };
+
+const contact: Navigation = { label: "Contact", href: "/contact" };
 
 const category: Navigation<Category, GetCategoriesQuerySchema> = {
   href: "/products",
@@ -41,9 +45,7 @@ const category: Navigation<Category, GetCategoriesQuerySchema> = {
   children: (props) => CategoryNavigationBranch({ category: props.data }),
 };
 
-const contact: Navigation = { label: "Contact", href: "/contact" };
-
-const navigations: Navigation<any, any>[] = [home, category, contact];
+const navigations: Navigation<any, any>[] = [home, contact, category];
 
 export type { NavigationData, Navigation };
 export { navigations };
