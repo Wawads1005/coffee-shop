@@ -30,6 +30,8 @@ const home: Navigation = {
   label: "Home",
 };
 
+const about: Navigation = { label: "About", href: "/#about" };
+
 const contact: Navigation = { label: "Contact", href: "/contact" };
 
 const category: Navigation<Category, GetCategoriesQuerySchema> = {
@@ -45,7 +47,7 @@ const category: Navigation<Category, GetCategoriesQuerySchema> = {
   children: (props) => CategoryNavigationBranch({ category: props.data }),
 };
 
-const navigations: Navigation<any, any>[] = [home, contact, category];
+const navigations: Navigation<any, any>[] = [home, about, contact, category];
 
 export type { NavigationData, Navigation };
 export { navigations };

@@ -16,7 +16,7 @@ interface RootLayoutProps {
 function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
-      className={cn("font-sans", geist.variable)}
+      className={cn("dark font-sans", geist.variable)}
       lang="en"
       suppressHydrationWarning
     >
