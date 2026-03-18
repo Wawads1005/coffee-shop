@@ -26,7 +26,7 @@ function PublicLayout({ children }: PublicLayoutProps) {
           <AppNavigationMenu navigations={navigations} />
         </div>
       </header>
-      <main>{children}</main>
+      <main className="flex-1">{children}</main>
       <footer className="bg-muted text-muted-foreground">
         <div className="mx-auto w-full max-w-360 px-4 py-8 md:px-8 md:py-16">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-16 lg:grid-cols-4">

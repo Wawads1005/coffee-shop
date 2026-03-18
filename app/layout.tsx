@@ -21,7 +21,7 @@ function RootLayout({ children }: RootLayoutProps) {
       suppressHydrationWarning
     >
       <head />
-      <body className="min-h-screen antialiased">
+      <body className="flex min-h-screen flex-col antialiased">
         <AppQueryClientProvider>
           <TooltipProvider>
             {children}
