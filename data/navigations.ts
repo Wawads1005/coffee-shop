@@ -32,7 +32,7 @@ const home: Navigation = {
 
 const about: Navigation = { label: "About", href: "/#about" };
 
-const contact: Navigation = { label: "Contact", href: "/contact" };
+const contact: Navigation = { label: "Contact", href: "/#contact" };
 
 const category: Navigation<Category, GetCategoriesQuerySchema> = {
   href: "/products",
