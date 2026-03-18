@@ -151,7 +151,9 @@ function Homepage() {
       <div className="bg-card text-card-foreground">
         <div className="mx-auto w-full max-w-360 space-y-4 px-4 py-8 md:space-y-8 md:px-8 md:py-16">
           <div className="space-y-4">
-            <h3 className="text-2xl md:text-4xl">How can we help?</h3>
+            <h3 className="text-2xl font-semibold md:text-4xl">
+              How can we help?
+            </h3>
             <p className="text-muted-foreground text-sm md:text-base">
               Check our FAQ for quick answers or send us a message.
             </p>
@@ -288,7 +290,7 @@ function CategoryCard({ category, className, ...props }: CategoryCardProps) {
   return (
     <div
       className={cn(
-        "bg-card text-card-foregroundx flex overflow-hidden rounded-md",
+        "bg-card text-card-foregroundx flex overflow-hidden rounded-md shadow",
         className,
       )}
       {...props}
