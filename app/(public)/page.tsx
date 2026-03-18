@@ -1,7 +1,19 @@
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Category } from "@/drizzle/schemas";
+import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
+import { useProductsQuery } from "@/hooks/products/use-products-query";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import * as React from "react";
 
 function Homepage() {
+  const categoriesQuery = useCategoriesQuery({ pagination: { limit: 4 } });
+  const categories = categoriesQuery.data
+    ? categoriesQuery.data.categories
+    : [];
+
   return (
     <div>
       <div className="relative">
@@ -25,7 +37,7 @@ function Homepage() {
             <Button
               size="lg"
               nativeButton={false}
-              render={<Link href="/products">Explore Coffee</Link>}
+              render={<Link href="/products">Explore Products</Link>}
             />
             <Button size="lg" variant="secondary">
               <span>Contact Us</span>
@@ -60,8 +72,8 @@ function Homepage() {
             </div>
           </div>
         </div>
-        <div className="bg-card text-card-foreground px-4 py-8 md:px-8 md:py-16">
-          <div className="mx-auto w-full max-w-360 space-y-8 md:space-y-16">
+        <div className="bg-card text-card-foreground">
+          <div className="mx-auto w-full max-w-360 space-y-8 px-4 py-8 md:space-y-16 md:px-8 md:py-16">
             <div className="flex flex-col gap-2 md:gap-4">
               <h3 className="text-2xl font-semibold sm:text-4xl">
                 Our Achievements
@@ -99,6 +111,69 @@ function Homepage() {
             </div>
           </div>
         </div>
+      </div>
+      <div className="mx-auto w-full max-w-360 space-y-4 px-4 py-8 md:space-y-8 md:px-8 md:py-16">
+        {categories.map((category, i) => {
+          return (
+            <CategoryCard
+              key={category.id}
+              category={category}
+              className={cn(
+                i % 2 === 0
+                  ? "flex-col md:flex-row-reverse"
+                  : "flex-col md:flex-row",
+              )}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+interface CategoryCardProps extends React.ComponentProps<"div"> {
+  category: Category;
+}
+
+function CategoryCard({ category, className, ...props }: CategoryCardProps) {
+  const productsQuery = useProductsQuery({
+    filter: { category: category.slug },
+    pagination: { limit: 1 },
+  });
+  const [product] = productsQuery.data ? productsQuery.data.products : [];
+
+  if (!product) {
+    return null;
+  }
+
+  return (
+    <div
+      className={cn(
+        "bg-card text-card-foregroundx flex overflow-hidden rounded-md",
+        className,
+      )}
+      {...props}
+    >
+      <div className="aspect-video max-h-80 flex-1/2 shrink-0">
+        <img
+          src={product.image}
+          alt={product.description}
+          className="size-full max-h-full max-w-full shrink-0 object-cover"
+        />
+      </div>
+      <div className="flex flex-1/2 flex-col items-center justify-center gap-4 py-8">
+        <div className="text-center">
+          <h3 className="text-3xl font-semibold">{category.name}</h3>
+          <p className="text-muted-foreground text-sm">
+            {category.description}
+          </p>
+        </div>
+        <Link
+          href={`/products?category=${category.slug}`}
+          className={cn(buttonVariants({ variant: "outline" }))}
+        >
+          Explore {category.name}
+        </Link>
       </div>
     </div>
   );
