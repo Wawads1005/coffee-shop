@@ -111,8 +111,8 @@ function ProductsPage(props: ProductsPageProps) {
                   <Card className="relative size-full overflow-hidden pt-0 hover:shadow">
                     <div className="aspect-video max-h-52">
                       <img
-                        src="/placeholder.svg"
                         className="size-full object-cover object-center"
+                        src={product.image}
                         alt={product.name}
                       />
                     </div>

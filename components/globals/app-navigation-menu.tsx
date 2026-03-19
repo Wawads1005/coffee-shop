@@ -44,14 +44,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useSignOutMutation } from "@/hooks/auth/use-signout-mutation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
+import { AlertDescription } from "../ui/alert";
+import { useRouter } from "next/navigation";
 
 interface AppNavigationMenuProps {
   navigations: Navigation[];
 }
 
 function AppNavigationMenu({ navigations }: AppNavigationMenuProps) {
-  const sessionQuery = useSessionQuery();
-
   return (
     <React.Fragment>
       <NavigationMenu className="hidden md:flex">
@@ -64,51 +74,7 @@ function AppNavigationMenu({ navigations }: AppNavigationMenuProps) {
               />
             );
           })}
-          {sessionQuery.data ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Avatar>
-                  <AvatarFallback />
-                  {sessionQuery.data.user.image && (
-                    <AvatarImage src={sessionQuery.data.user.image} />
-                  )}
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-auto">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>
-                    {sessionQuery.data.user.name ||
-                      sessionQuery.data.user.email}
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <UserIcon />
-                    <span>Profile</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <SettingsIcon />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <LogOutIcon />
-                    <span>Sign Out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                className={cn(buttonVariants({ variant: "default" }))}
-                render={
-                  <Link href="/signin">
-                    <LogInIcon />
-                    <span>Sign In</span>
-                  </Link>
-                }
-              />
-            </NavigationMenuItem>
-          )}
+          <AppNavigationAuthMenuItem />
         </NavigationMenuList>
       </NavigationMenu>
       <Sheet>
@@ -177,6 +143,98 @@ function AppNavigationMenuList({
         </NavigationMenu>
       </NavigationMenuContent>
     </NavigationMenuItem>
+  );
+}
+
+function AppNavigationAuthMenuItem() {
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [isAlertOpen, setIsAlertOpen] = React.useState(false);
+  const sessionQuery = useSessionQuery();
+  const signOutMutation = useSignOutMutation();
+  const router = useRouter();
+
+  if (!sessionQuery.data) {
+    return (
+      <NavigationMenuItem>
+        <NavigationMenuLink
+          className={cn(buttonVariants({ variant: "default" }))}
+          render={
+            <Link href="/signin">
+              <LogInIcon />
+              <span>Sign In</span>
+            </Link>
+          }
+        />
+      </NavigationMenuItem>
+    );
+  }
+
+  return (
+    <React.Fragment>
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+        <DropdownMenuTrigger>
+          <Avatar>
+            <AvatarFallback />
+            {sessionQuery.data.user.image && (
+              <AvatarImage src={sessionQuery.data.user.image} />
+            )}
+          </Avatar>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-auto">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>
+              {sessionQuery.data.user.name || sessionQuery.data.user.email}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <UserIcon />
+              <span>Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <SettingsIcon />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(event) => {
+                event.preventBaseUIHandler();
+                setIsDropdownOpen(false);
+                setIsAlertOpen(true);
+              }}
+            >
+              <LogOutIcon />
+              <span>Sign Out</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDescription>
+              This action cannot be undone, by clicking continue you will signed
+              out.
+            </AlertDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                signOutMutation.mutate(undefined, {
+                  onSuccess: () => {
+                    router.push("/signin");
+                  },
+                });
+              }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </React.Fragment>
   );
 }
 
