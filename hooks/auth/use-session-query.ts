@@ -10,7 +10,7 @@ function useSessionQuery() {
       const response = await authClient.getSession();
 
       if (!response.data) {
-        throw new Error(response.error?.message);
+        return null;
       }
 
       return response.data;

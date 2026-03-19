@@ -14,6 +14,13 @@ function useSignOutMutation() {
 
       return response.data;
     },
+    onSuccess: async (_data, _variables, _result, context) => {
+      await context.client.cancelQueries({ queryKey: ["session"] });
+      await context.client.invalidateQueries({ queryKey: ["session"] });
+      await context.client.setQueryData(["session"], () => {
+        return null;
+      });
+    },
   });
 
   return signOutMutation;
