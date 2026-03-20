@@ -30,6 +30,8 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@/components/ui/input-group";
+import { UploadthingDropzone } from "@/components/uploadthing/uploadthing-dropzone";
+import { XIcon } from "lucide-react";
 
 interface ProductFormProps extends Omit<
   React.ComponentProps<"form">,
@@ -171,10 +173,9 @@ function ProductForm({
                     items={items}
                     value={field.state.value}
                     onValueChange={(value) => {
-                      value &&
-                        field.handleChange(
-                          field.state.value === value ? "" : value,
-                        );
+                      value && field.handleChange(value);
+
+                      field.handleBlur();
                     }}
                   >
                     <SelectTrigger id={field.name} name={field.name}>
@@ -210,14 +211,38 @@ function ProductForm({
                 <FieldLabel htmlFor={field.name} className="capitalize">
                   {field.name}
                 </FieldLabel>
-                <Input
-                  type="file"
-                  onChange={(e) =>
-                    e.currentTarget.files &&
-                    e.currentTarget.files[0] &&
-                    field.handleChange(e.currentTarget.files[0].name)
-                  }
-                />
+                {field.state.value ? (
+                  <div className="relative">
+                    <div className="aspect-video h-full max-h-96 overflow-hidden rounded-md">
+                      <img
+                        src={field.state.value}
+                        className="size-full max-h-full max-w-full object-cover object-center"
+                      />
+                    </div>
+                    <div className="absolute top-0 right-0">
+                      <Button
+                        size="icon-xs"
+                        variant="destructive"
+                        onClick={() => field.setValue("")}
+                      >
+                        <XIcon />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <UploadthingDropzone
+                    endpoint="imageUploader"
+                    onClientUploadComplete={([file]) => {
+                      if (!file) {
+                        field.handleBlur();
+                        return;
+                      }
+
+                      field.handleChange(file.ufsUrl);
+                      field.handleBlur();
+                    }}
+                  />
+                )}
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
             );

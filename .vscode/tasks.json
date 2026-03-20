@@ -36,6 +36,13 @@
       "problemMatcher": [],
       "label": "npm: db:studio",
       "detail": "drizzle-kit studio"
+    },
+    {
+      "type": "npm",
+      "script": "db:seed",
+      "problemMatcher": [],
+      "label": "npm: db:seed",
+      "detail": "tsx ./drizzle/seed.ts"
     }
   ]
 }

@@ -3,9 +3,12 @@ import * as React from "react";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { AppQueryClientProvider } from "@/components/globals/app-query-client-provider";
+import { extractRouterConfig } from "uploadthing/server";
+import { fileRouter } from "@/app/api/uploadthing/core";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -24,6 +27,7 @@ function RootLayout({ children }: RootLayoutProps) {
       <body className="flex min-h-screen flex-col antialiased">
         <AppQueryClientProvider>
           <TooltipProvider>
+            <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
             {children}
             <Toaster />
           </TooltipProvider>
