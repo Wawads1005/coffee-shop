@@ -49,6 +49,8 @@ import { ProductForm } from "@/components/products/product-form";
 import { useUpdateProductMutation } from "@/hooks/products/use-update-product-mutation";
 import { slugify } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { useDeleteProductMutation } from "@/hooks/products/use-delete-product-mutation";
+import { toast } from "sonner";
 
 const productColumns: ColumnDef<Product>[] = [
   {
@@ -200,6 +202,7 @@ function ProductRowAction({ row }: ProductRowActionProps) {
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
   const updateProductMutation = useUpdateProductMutation();
+  const deleteProductMutation = useDeleteProductMutation();
 
   return (
     <React.Fragment>
@@ -303,7 +306,15 @@ function ProductRowAction({ row }: ProductRowActionProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive">
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                deleteProductMutation.mutate(
+                  { id: row.original.id },
+                  { onSuccess: (data) => toast.success(data.message) },
+                );
+              }}
+            >
               Continue
             </AlertDialogAction>
           </AlertDialogFooter>
