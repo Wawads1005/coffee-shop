@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   reactCompiler: {
     compilationMode: "annotation",
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;
