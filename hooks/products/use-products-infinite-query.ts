@@ -3,7 +3,7 @@
 import { getProducts } from "@/actions/products/get-products";
 import { queryKeys } from "@/lib/query-client";
 import { GetProductsQuerySchema } from "@/validators/products/get-products";
-import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 function useProductsInfiniteQuery(query: GetProductsQuerySchema = {}) {
   const productsInfiniteQuery = useInfiniteQuery({
@@ -16,7 +16,6 @@ function useProductsInfiniteQuery(query: GetProductsQuerySchema = {}) {
     getPreviousPageParam: (firstPage) => firstPage.offset,
     getNextPageParam: (lastPage) => lastPage.nextOffset,
     initialPageParam: 0,
-    placeholderData: keepPreviousData,
   });
 
   return productsInfiniteQuery;
