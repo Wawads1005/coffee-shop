@@ -9,6 +9,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { AppQueryClientProvider } from "@/components/globals/app-query-client-provider";
 import { extractRouterConfig } from "uploadthing/server";
 import { fileRouter } from "@/app/api/uploadthing/core";
+import { getQueryClient } from "@/lib/query-client";
+import { auth } from "@/lib/auth";
+import { headers as nextHeaders } from "next/headers";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -16,7 +20,15 @@ interface RootLayoutProps {
   children?: React.ReactNode;
 }
 
-function RootLayout({ children }: RootLayoutProps) {
+async function RootLayout({ children }: RootLayoutProps) {
+  const headers = await nextHeaders();
+  const queryClient = getQueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["session"],
+    queryFn: async () => await auth.api.getSession({ headers }),
+  });
+
   return (
     <html
       className={cn("dark font-sans", geist.variable)}
@@ -26,11 +38,13 @@ function RootLayout({ children }: RootLayoutProps) {
       <head />
       <body className="flex min-h-screen flex-col antialiased">
         <AppQueryClientProvider>
-          <TooltipProvider>
-            <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
-            {children}
-            <Toaster />
-          </TooltipProvider>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <TooltipProvider>
+              <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
+              {children}
+              <Toaster />
+            </TooltipProvider>
+          </HydrationBoundary>
         </AppQueryClientProvider>
       </body>
     </html>

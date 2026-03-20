@@ -25,6 +25,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
 import { ProductSearchForm } from "@/components/products/product-search-form";
 import { HomeIcon, PackageIcon, PackageOpenIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProductsPageSearchParams {
   category?: string;
@@ -49,6 +50,7 @@ function ProductsPage(props: ProductsPageProps) {
     <div className="container mx-auto w-full max-w-360 space-y-4 p-4 md:space-y-8 md:p-8">
       <div className="flex items-center justify-between gap-4 md:gap-8">
         <ProductSearchForm
+          defaultValues={{ search: searchParams.search ?? "" }}
           onSubmit={(value) => {
             const urlSearchParams = new URLSearchParams();
             if (value.search.length <= 0) {
@@ -63,45 +65,61 @@ function ProductsPage(props: ProductsPageProps) {
         />
       </div>
 
-      {products.length <= 0 ? (
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <PackageOpenIcon />
-            </EmptyMedia>
-            <EmptyTitle>No products found.</EmptyTitle>
-            <EmptyDescription>
-              Products doesn't exists in our database, please enter a valid url.
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <ButtonGroup>
-              <Button
-                nativeButton={false}
-                render={
-                  <Link href="/products">
-                    <PackageIcon />
-                    <span>Browse</span>
-                  </Link>
-                }
-              />
-              <Button
-                variant="outline"
-                nativeButton={false}
-                render={
-                  <Link href="/">
-                    <HomeIcon />
-                    <span>Home</span>
-                  </Link>
-                }
-              />
-            </ButtonGroup>
-          </EmptyContent>
-        </Empty>
-      ) : (
-        <div className="space-y-4 md:space-y-8">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product) => {
+      <div className="space-y-4 md:space-y-8">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8 lg:grid-cols-3 xl:grid-cols-4">
+          {productsQuery.isLoading ? (
+            Array.from({ length: 4 }, (_, i) => {
+              return (
+                <Card key={i} className="pt-0">
+                  <Skeleton className="aspect-video max-h-52" />
+                  <CardHeader className="flex-1 gap-4">
+                    <Skeleton className="h-8 w-28" />
+                    <Skeleton className="h-4 w-52" />
+                    <CardAction>
+                      <Skeleton className="h-4 w-10" />
+                    </CardAction>
+                  </CardHeader>
+                </Card>
+              );
+            })
+          ) : products.length <= 0 ? (
+            <Empty className="col-span-full">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <PackageOpenIcon />
+                </EmptyMedia>
+                <EmptyTitle>No products found.</EmptyTitle>
+                <EmptyDescription>
+                  Products doesn't exists in our database, please enter a valid
+                  url.
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <ButtonGroup>
+                  <Button
+                    nativeButton={false}
+                    render={
+                      <Link href="/products">
+                        <PackageIcon />
+                        <span>Browse</span>
+                      </Link>
+                    }
+                  />
+                  <Button
+                    variant="outline"
+                    nativeButton={false}
+                    render={
+                      <Link href="/">
+                        <HomeIcon />
+                        <span>Home</span>
+                      </Link>
+                    }
+                  />
+                </ButtonGroup>
+              </EmptyContent>
+            </Empty>
+          ) : (
+            products.map((product) => {
               return (
                 <Link
                   key={product.id}
@@ -129,20 +147,21 @@ function ProductsPage(props: ProductsPageProps) {
                   </Card>
                 </Link>
               );
-            })}
-          </div>
-          <div className="flex items-center justify-center">
-            {productsQuery.hasNextPage && (
-              <Button
-                variant="link"
-                onClick={() => productsQuery.fetchNextPage()}
-              >
-                Load More...
-              </Button>
-            )}
-          </div>
+            })
+          )}
         </div>
-      )}
+        <div className="flex items-center justify-center">
+          {productsQuery.hasNextPage && (
+            <Button
+              variant="link"
+              disabled={productsQuery.isFetchingNextPage}
+              onClick={() => productsQuery.fetchNextPage()}
+            >
+              {productsQuery.isFetchingNextPage ? "Loading..." : "Load More..."}
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

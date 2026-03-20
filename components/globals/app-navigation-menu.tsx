@@ -1,11 +1,15 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
 
-import { cn } from "@/lib/utils";
 import { Navigation } from "@/data/navigations";
+import { cn } from "@/lib/utils";
+import { queryKeys } from "@/lib/query-client";
+
+import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { useSessionQuery } from "@/hooks/auth/use-session-query";
+import { useSignOutMutation } from "@/hooks/auth/use-signout-mutation";
 
 import {
   NavigationMenu,
@@ -25,16 +29,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  LogInIcon,
-  LogOutIcon,
-  MenuIcon,
-  SettingsIcon,
-  UserIcon,
-} from "lucide-react";
-import { queryKeys } from "@/lib/query-client";
-import { useSessionQuery } from "@/hooks/auth/use-session-query";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,8 +39,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { useSignOutMutation } from "@/hooks/auth/use-signout-mutation";
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,9 +48,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../ui/alert-dialog";
-import { AlertDescription } from "../ui/alert";
-import { useRouter } from "next/navigation";
+} from "@/components/ui/alert-dialog";
+import { AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
+import {
+  LogInIcon,
+  LogOutIcon,
+  MenuIcon,
+  SettingsIcon,
+  UserIcon,
+} from "lucide-react";
 
 interface AppNavigationMenuProps {
   navigations: Navigation[];
@@ -65,7 +68,7 @@ function AppNavigationMenu({ navigations }: AppNavigationMenuProps) {
   return (
     <React.Fragment>
       <NavigationMenu className="hidden md:flex">
-        <NavigationMenuList className="gap-1">
+        <NavigationMenuList>
           {navigations.map((navigation) => {
             return (
               <AppNavigationMenuItem
@@ -126,7 +129,7 @@ function AppNavigationMenuList({
     queryFn: async () => await navigation.queryFn(navigation.query),
   });
 
-  const collections = dataQuery.data ? dataQuery.data : [];
+  const data = dataQuery.data?.[navigation.queryKey] ?? [];
 
   return (
     <NavigationMenuItem>
@@ -136,9 +139,13 @@ function AppNavigationMenuList({
       <NavigationMenuContent>
         <NavigationMenu side="left">
           <NavigationMenuList className="flex-col">
-            {collections.map((entity) => {
-              return <navigation.children key={entity.id} data={entity} />;
-            })}
+            {dataQuery.isLoading
+              ? Array.from({ length: 3 }, (_, i) => {
+                  return <Skeleton key={i} className="h-8 w-24" />;
+                })
+              : data.map((item) => {
+                  return <navigation.children key={item.id} data={item} />;
+                })}
           </NavigationMenuList>
         </NavigationMenu>
       </NavigationMenuContent>
@@ -149,11 +156,19 @@ function AppNavigationMenuList({
 function AppNavigationAuthMenuItem() {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [isAlertOpen, setIsAlertOpen] = React.useState(false);
-  const sessionQuery = useSessionQuery();
-  const signOutMutation = useSignOutMutation();
   const router = useRouter();
+  const sessionResponseQuery = useSessionQuery();
+  const sessionResponse = sessionResponseQuery.data
+    ? sessionResponseQuery.data
+    : null;
 
-  if (!sessionQuery.data) {
+  const signOutMutation = useSignOutMutation();
+
+  if (sessionResponseQuery.isLoading) {
+    return <Skeleton className="size-9 rounded-full" />;
+  }
+
+  if (!sessionResponse) {
     return (
       <NavigationMenuItem>
         <NavigationMenuLink
@@ -175,15 +190,15 @@ function AppNavigationAuthMenuItem() {
         <DropdownMenuTrigger>
           <Avatar>
             <AvatarFallback />
-            {sessionQuery.data.user.image && (
-              <AvatarImage src={sessionQuery.data.user.image} />
+            {sessionResponse.user.image && (
+              <AvatarImage src={sessionResponse.user.image} />
             )}
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-auto">
           <DropdownMenuGroup>
             <DropdownMenuLabel>
-              {sessionQuery.data.user.name || sessionQuery.data.user.email}
+              {sessionResponse.user.name || sessionResponse.user.email}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>

@@ -21,6 +21,9 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
+import { Skeleton } from "@/components/ui/skeleton";
+import { faqs } from "@/data/faqs";
+import { stats } from "@/data/stats";
 import { Category } from "@/drizzle/schemas";
 import { useCategoriesQuery } from "@/hooks/categories/use-categories-query";
 import { useProductsQuery } from "@/hooks/products/use-products-query";
@@ -30,7 +33,7 @@ import Link from "next/link";
 import * as React from "react";
 
 function Homepage() {
-  const categoriesQuery = useCategoriesQuery({ pagination: { limit: 4 } });
+  const categoriesQuery = useCategoriesQuery({ filter: { parentId: null } });
   const categories = categoriesQuery.data
     ? categoriesQuery.data.categories
     : [];
@@ -105,48 +108,48 @@ function Homepage() {
               </p>
             </div>
             <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-16">
-              <div className="space-y-2">
-                <div className="font-mono text-2xl font-bold md:text-4xl">
-                  300+
-                </div>
-                <p className="text-muted-foreground">Coffee Variety</p>
-              </div>
-              <div className="space-y-2">
-                <div className="font-mono text-2xl font-bold md:text-4xl">
-                  1,800+
-                </div>
-                <p className="text-muted-foreground">Happy Costumers</p>
-              </div>
-              <div className="space-y-2">
-                <div className="font-mono text-2xl font-bold md:text-4xl">
-                  10+
-                </div>
-                <p className="text-muted-foreground">Years of Excellence</p>
-              </div>
-              <div className="space-y-2">
-                <div className="font-mono text-2xl font-bold md:text-4xl">
-                  50%+
-                </div>
-                <p className="text-muted-foreground">Yearly Growth</p>
-              </div>
+              {stats.map((stat) => {
+                return (
+                  <div className="space-y-2" key={stat.id}>
+                    <div className="font-mono text-2xl font-bold md:text-4xl">
+                      {stat.value}
+                      {stat.unitOfMeasure === "percentage" && "%"}
+                    </div>
+                    <p className="text-muted-foreground">{stat.label}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </div>
       <div className="mx-auto w-full max-w-360 space-y-4 px-4 py-8 md:space-y-8 md:px-8 md:py-16">
-        {categories.map((category, i) => {
-          return (
-            <CategoryCard
-              key={category.id}
-              category={category}
-              className={cn(
-                i % 2 === 0
-                  ? "flex-col md:flex-row-reverse"
-                  : "flex-col md:flex-row",
-              )}
-            />
-          );
-        })}
+        {categoriesQuery.isLoading
+          ? Array.from({ length: 5 }, (_, i) => {
+              return (
+                <CategoryCardSkeleton
+                  key={i}
+                  className={cn(
+                    i % 2 === 0
+                      ? "flex-col md:flex-row-reverse"
+                      : "flex-col md:flex-row",
+                  )}
+                />
+              );
+            })
+          : categories.map((category, i) => {
+              return (
+                <CategoryCard
+                  key={category.id}
+                  category={category}
+                  className={cn(
+                    i % 2 === 0
+                      ? "flex-col md:flex-row-reverse"
+                      : "flex-col md:flex-row",
+                  )}
+                />
+              );
+            })}
       </div>
       <div id="contact">
         <div className="bg-card text-card-foreground">
@@ -168,56 +171,14 @@ function Homepage() {
                   </span>
                 </div>
                 <Accordion>
-                  <AccordionItem>
-                    <AccordionTrigger>
-                      What are your opening hours?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      We're open daily from 7:00 AM to 9:00 PM. Hours may change
-                      during holidays, so check our social pages for updates.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem>
-                    <AccordionTrigger>
-                      Do you offer free Wi-Fi?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      Yes. Wi-Fi is free for all customers. Ask our staff for
-                      the password when you order.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem>
-                    <AccordionTrigger>
-                      Can I work or study here?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      Yes—but be respectful of space during peak hours. We
-                      encourage laptop use during quieter times and may limit
-                      long stays when the shop is full.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem>
-                    <AccordionTrigger>
-                      Do you have power outlets?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      Some seats have outlets, but not all. They're available on
-                      a first-come, first-served basis.
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem>
-                    <AccordionTrigger>
-                      Do you offer non-coffee drinks?
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <span>Yes, we have:</span>
-                      <ul className="ml-6 list-disc [&>li]:mt-2">
-                        <li>Tea (hot and iced)</li>
-                        <li>Chocolate drinks</li>
-                        <li>Matcha and other alternatives</li>
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
+                  {faqs.map((faq) => {
+                    return (
+                      <AccordionItem key={faq.id}>
+                        <AccordionTrigger>{faq.question}</AccordionTrigger>
+                        <AccordionContent>{faq.answer}</AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
                 </Accordion>
               </div>
               <div className="space-y-4">
@@ -324,6 +285,34 @@ function CategoryCard({ category, className, ...props }: CategoryCardProps) {
         >
           Explore {category.name}
         </Link>
+      </div>
+    </div>
+  );
+}
+
+interface CategoryCardSkeletonProps extends React.ComponentProps<"div"> {}
+
+function CategoryCardSkeleton({
+  className,
+  ...props
+}: CategoryCardSkeletonProps) {
+  return (
+    <div
+      className={cn(
+        "bg-card text-card-foregroundx flex overflow-hidden rounded-md shadow",
+        className,
+      )}
+      {...props}
+    >
+      <div className="aspect-video max-h-80 flex-1/2 shrink-0">
+        <Skeleton className="size-full max-h-full max-w-full rounded-none" />
+      </div>
+      <div className="flex flex-1/2 flex-col items-center justify-center gap-4 py-8">
+        <div className="flex flex-col items-center justify-center gap-4">
+          <Skeleton className="h-8 w-52" />
+          <Skeleton className="h-8 w-80" />
+        </div>
+        <Skeleton className="h-8 w-28" />
       </div>
     </div>
   );

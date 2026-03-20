@@ -15,13 +15,14 @@ interface NavigationData {
 interface Navigation<
   TData extends NavigationData | null = null,
   TQuery extends Record<string, unknown> | null = null,
+  TQueryKey extends "categories" = "categories",
 > {
   label: string;
   href: string;
   className?: string;
   query?: TQuery;
-  queryKey?: "categories";
-  queryFn?: (query?: TQuery) => Promise<TData[]>;
+  queryKey?: TQueryKey;
+  queryFn?: (query?: TQuery) => Promise<{ [data in TQueryKey]: TData[] }>;
   children?: (props: { data: TData }) => React.ReactNode;
 }
 
@@ -42,7 +43,7 @@ const category: Navigation<Category, GetCategoriesQuerySchema> = {
   queryFn: async (query) => {
     const response = await getCategories(query);
 
-    return response.categories;
+    return response;
   },
   children: (props) => CategoryNavigationBranch({ category: props.data }),
 };

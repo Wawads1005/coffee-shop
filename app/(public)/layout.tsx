@@ -9,12 +9,29 @@ import {
   PhoneIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { getQueryClient, queryKeys } from "@/lib/query-client";
+import { GetCategoriesQuerySchema } from "@/validators/categories/get-categories";
+import { getCategories } from "@/actions/categories/get-categories";
 
 interface PublicLayoutProps {
   children?: React.ReactNode;
 }
 
-function PublicLayout({ children }: PublicLayoutProps) {
+async function PublicLayout({ children }: PublicLayoutProps) {
+  const queryClient = getQueryClient();
+  const categoriesQuery: GetCategoriesQuerySchema = {
+    filter: { parentId: null },
+  };
+
+  await queryClient.prefetchQuery({
+    queryKey: queryKeys.categories.collections(categoriesQuery),
+    queryFn: async () => {
+      const response = await getCategories(categoriesQuery);
+
+      return response;
+    },
+  });
+
   return (
     <React.Fragment>
       <header className="bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 right-0 left-0 z-50 h-16 w-full shadow backdrop-blur">
