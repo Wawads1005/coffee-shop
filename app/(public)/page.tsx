@@ -251,6 +251,10 @@ function CategoryCard({ category, className, ...props }: CategoryCardProps) {
   });
   const [product] = productsQuery.data ? productsQuery.data.products : [];
 
+  if (productsQuery.isLoading) {
+    return <CategoryCardSkeleton />;
+  }
+
   if (!product) {
     return null;
   }
