@@ -14,6 +14,11 @@ class CreateCategoryError extends Error {}
 
 async function createCategory(data: CreateCategoryDataSchema) {
   const headers = await nextHeaders();
+  const session = await auth.api.getSession({ headers });
+
+  if (!session) {
+    throw new Error("Unauthenticated.");
+  }
 
   const permissionResponse = await auth.api.userHasPermission({
     body: { permissions: { categories: ["create"] } },

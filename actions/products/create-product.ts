@@ -13,6 +13,11 @@ class CreateProductError extends Error {}
 
 async function createProduct(data: CreateProductDataSchema) {
   const headers = await nextHeaders();
+  const session = await auth.api.getSession({ headers });
+
+  if (!session) {
+    throw new Error("Unauthenticated.");
+  }
 
   const permissionResponse = await auth.api.userHasPermission({
     body: { permissions: { categories: ["create"] } },
