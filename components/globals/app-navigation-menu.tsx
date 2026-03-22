@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
 import {
   LogInIcon,
@@ -154,6 +155,7 @@ function AppNavigationMenuList({
 }
 
 function AppNavigationAuthMenuItem() {
+  const [isSigningOut, startSigningOut] = React.useTransition();
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [isAlertOpen, setIsAlertOpen] = React.useState(false);
   const router = useRouter();
@@ -186,6 +188,15 @@ function AppNavigationAuthMenuItem() {
 
   return (
     <React.Fragment>
+      {isSigningOut && (
+        <div className="bg-background/80 fixed inset-0 z-50 flex min-h-screen items-center justify-center backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3">
+            <Spinner className="size-8 animate-spin" />
+            <p className="text-muted-foreground text-sm">Signing out...</p>
+          </div>
+        </div>
+      )}
+
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger>
           <Avatar>
@@ -237,10 +248,12 @@ function AppNavigationAuthMenuItem() {
             <AlertDialogAction
               variant="destructive"
               onClick={() => {
-                signOutMutation.mutate(undefined, {
-                  onSuccess: () => {
-                    router.push("/signin");
-                  },
+                startSigningOut(async () => {
+                  await signOutMutation.mutateAsync(undefined, {
+                    onSuccess: () => {
+                      router.push("/signin");
+                    },
+                  });
                 });
               }}
             >
